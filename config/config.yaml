@@ -1,0 +1,15 @@
+jwt:
+  secret_key: "your-256-bit-secret-key"
+
+mysql:
+  enable: true
+  host: 127.0.0.1
+  port: 3306
+  dataBase: ginAdmin
+  username: root
+  password: 123456
+
+
+
+redis:
+  enable: false
