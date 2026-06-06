@@ -9,7 +9,7 @@ import (
 /**
 * 整个项目配置信息的类型
 **/
-type Config struct {
+type Conf struct {
 	JWT JWTConfig `yaml:"jwt"`
 	MySQl MySQLConfig `yaml:"mysql"`
 	Redis RedisConfig `yaml:"redis"`
@@ -36,7 +36,7 @@ type RedisConfig struct {
 	Enable bool `yaml:"enable"`
 }
 
-var cfg Config 
+var cfg Conf 
 
 /**
 * 获取初始化配置
@@ -59,6 +59,6 @@ func InitConfig(path string) error {
 	return nil
 }
 
-func GetConfig() Config {
-	return cfg
+func GetConfig() *Conf {
+	return &cfg
 }
