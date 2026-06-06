@@ -1,11 +1,8 @@
 package bootstrapx
 
 import (
-	"fmt"
-	"log"
+	"GinAdmin/config"
 	"time"
-
-	"go.uber.org/zap"
 )
 
 /**
@@ -16,20 +13,26 @@ func InitializeConfig(configPath string) error {
 }
 
 
-func InitializeTimezone() {
+func InitializeTimezone() error {
 	cfg := config.GetConfig()
-	if cfg.Timezone == nil {
-		return
-	}
 
-	location, err := time.LoadLocation(*cfg.Timezone)
-	if err != nil {
-		// 如果有错误日志记录，则记录错误日志
-		if log.Logger != nil {
-			log.Logger.Error(fmt.Sprintf(errorLoadingLocation, err), zap.Error(err))
-		}
-		fmt.Println(errorLoadingLocation+"\n", err)
-		return
+	timezone := "Asia/Shanghai"
+	if cfg.Timezone != nil && *cfg.Timezone != "" { // 如果配置信息中时区不为空，则使用配置信息中的时区
+		timezone = *cfg.Timezone
 	}
+	location, err := time.LoadLocation(timezone)
+	if err != nil {
+		return err
+	}
+	
+	// if err != nil {
+	// 	// 如果有错误日志记录，则记录错误日志
+	// 	if log.Logger != nil {
+	// 		log.Logger.Error(fmt.Sprintf(errorLoadingLocation, err), zap.Error(err))
+	// 	}
+	// 	fmt.Println(errorLoadingLocation+"\n", err)
+	// 	return
+	// }
 	time.Local = location
+	return nil
 }

@@ -60,16 +60,18 @@ func RunServer() error {
 		Addr:    address,
 		Handler: engine,
 	}
-	errChan := make(chan error, 1)
-	go func() {
-		// log.Logger.Info("API service starting", zap.String("address", address))
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			errChan <- err
-		}
-		close(errChan)
-	}()
-
-	return server.ListenAndServe()
+	// errChan := make(chan error, 1)
+	// go func() {
+	// 	// log.Logger.Info("API service starting", zap.String("address", address))
+	// 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	// 		errChan <- err
+	// 	}
+	// 	close(errChan)
+	// }()
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return err
+	}
 
 	// return waitForShutdown(server, errChan)
+	return nil
 }

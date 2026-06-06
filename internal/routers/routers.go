@@ -1,6 +1,8 @@
 package routers
 
 import (
+	"GinAdmin/internal/controller"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +16,14 @@ func SetRouters() (*gin.Engine, error) {
 			"message": "pong",
 		})
 	})
+
+
+	userController := controller.NewUserController()
+
+	api := engine.Group("/api/v1")
+	{
+		api.GET("/users", userController.List)
+	}
 
 	// mock 没有错误
 	return engine, nil

@@ -5,7 +5,9 @@ import (
 	"os"
 	"strings"
 
+	"GinAdmin/cmd/bootstrapx"
 	"GinAdmin/cmd/service"
+	"GinAdmin/data"
 
 	"github.com/spf13/cobra"
 )
@@ -27,11 +29,29 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 
-		// if err := bootstrapx.InitializeConfig(configPath); err != nil {
-		// 	return err
-		// }
-		// bootstrapx.InitializeTimezone() // 日志服务还没写，后续放开注释。
-		return nil
+
+		/**
+		* 启动项目前，先初始化配置
+		*/
+		if err := bootstrapx.InitializeConfig(configPath); err != nil {
+			return err
+		}
+
+		/**
+		* 初始化时区
+		*/
+		if err := bootstrapx.InitializeTimezone(); err != nil {
+			return err
+		}
+
+		/**
+		* 初始化数据库
+		*/
+		err := data.Initialize();
+		if err != nil { 
+			return err
+		}
+		return nil // 如果初始化数据库成功，则返回 nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := service.RunServer()
@@ -55,7 +75,7 @@ func Execute() {
 **/
 func init() {
 	registerCommands()
-	// registerFlags()
+	registerFlags()
 }
 
 
