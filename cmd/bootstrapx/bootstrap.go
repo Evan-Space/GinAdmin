@@ -2,6 +2,7 @@ package bootstrapx
 
 import (
 	"GinAdmin/config"
+	log "GinAdmin/pkg/logger"
 	"time"
 )
 
@@ -13,7 +14,7 @@ func InitializeConfig(configPath string) error {
 }
 
 
-func InitializeTimezone() error {
+func InitializeTimezone() {
 	cfg := config.GetConfig()
 
 	timezone := "Asia/Shanghai"
@@ -22,17 +23,16 @@ func InitializeTimezone() error {
 	}
 	location, err := time.LoadLocation(timezone)
 	if err != nil {
-		return err
+		return
 	}
-	
-	// if err != nil {
-	// 	// 如果有错误日志记录，则记录错误日志
-	// 	if log.Logger != nil {
-	// 		log.Logger.Error(fmt.Sprintf(errorLoadingLocation, err), zap.Error(err))
-	// 	}
-	// 	fmt.Println(errorLoadingLocation+"\n", err)
-	// 	return
-	// }
 	time.Local = location
-	return nil
+}
+
+
+
+/**
+* 初始化日志
+*/
+func InitializeLogger()  error {
+	return log.InitLogger()
 }

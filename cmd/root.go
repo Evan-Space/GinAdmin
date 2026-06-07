@@ -15,6 +15,7 @@ import (
 
 var (
 	configPath string
+	welcomeMessage = "Welcome to go-layout. Use -h to see more commands"
 )
 /**
 * 注册一个命令入口
@@ -29,7 +30,6 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 
-
 		/**
 		* 启动项目前，先初始化配置
 		*/
@@ -40,9 +40,8 @@ var rootCmd = &cobra.Command{
 		/**
 		* 初始化时区
 		*/
-		if err := bootstrapx.InitializeTimezone(); err != nil {
-			return err
-		}
+		bootstrapx.InitializeTimezone()
+		// 初始化日志服务（暂时未接入日志服务）
 
 		/**
 		* 初始化数据库
@@ -54,10 +53,11 @@ var rootCmd = &cobra.Command{
 		return nil // 如果初始化数据库成功，则返回 nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		err := service.RunServer()
-		if err != nil {
-			fmt.Println("Failed to start server:", err)
-		}
+		fmt.Printf("%s\n", welcomeMessage)
+		// err := service.RunServer()
+		// if err != nil {
+		// 	fmt.Println("Failed to start server:", err)
+		// }
 	},
 }
 
@@ -65,17 +65,17 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
-
 }
 
 /**
 * 初始化
 **/
 func init() {
-	registerCommands()
 	registerFlags()
+	registerCommands()
 }
 
 

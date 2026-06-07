@@ -1,6 +1,7 @@
 package config
 
 import (
+	"GinAdmin/config/autoload"
 	"os"
 
 	"github.com/goccy/go-yaml"
@@ -14,6 +15,8 @@ type Conf struct {
 	MySQl MySQLConfig `yaml:"mysql"`
 	Redis RedisConfig `yaml:"redis"`
 	Timezone *string `yaml:"timezone"`
+	Logger   autoload.LoggerConfig `yaml:"logger"`
+	basePath string `yaml:"base_path"`
 }
 
 
@@ -56,9 +59,63 @@ func InitConfig(path string) error {
 		return err
 	}
 
+	basePath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	cfg.basePath = basePath
+
 	return nil
 }
 
 func GetConfig() *Conf {
 	return &cfg
 }
+
+
+
+
+
+
+/**
+* 配置重载处理器
+**/
+// type ConfigReloadHandler struct {
+// 	Name     string
+// 	Priority int
+// 	Handle   func(oldConfig, newConfig *Conf, diff ConfigDiff) error
+// }
+// type ConfigDiff struct {
+// 	LoggerChanged         bool
+// 	MysqlChanged          bool
+// 	RedisChanged          bool
+// 	JWTChanged            bool
+// 	JWTSecretChanged      bool
+// 	BaseURLChanged        bool
+// 	CORSChanged           bool
+// 	TrustedProxiesChanged bool
+// 	LightAppChanged       bool
+// 	RestartRequiredFields []string
+// 	ChangedFields         []string
+// }
+
+// RegisterConfigReloadHandler 注册配置热更新回调。
+// func RegisterConfigReloadHandler(handler ConfigReloadHandler) {
+	// if handler.Name == "" {
+	// 	return
+	// }
+
+	// reloadHandlersMu.Lock()
+	// defer reloadHandlersMu.Unlock()
+
+	// for i := range reloadHandlers {
+	// 	if reloadHandlers[i].Name == handler.Name {
+	// 		reloadHandlers[i] = handler
+	// 		sortConfigReloadHandlersLocked()
+	// 		return
+	// 	}
+	// }
+
+	// reloadHandlers = append(reloadHandlers, handler)
+	// sortConfigReloadHandlersLocked()
+// }
