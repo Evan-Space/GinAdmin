@@ -1,9 +1,14 @@
 package service
 
 import (
+	"GinAdmin/data"
 	"GinAdmin/internal/routers"
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,7 +22,7 @@ const (
 
 var (
 	ServeCmd = &cobra.Command{
-		Use:   "serve",
+		Use:   "server",
 		Short: "Start the server",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println("Starting server...")
@@ -60,18 +65,41 @@ func RunServer() error {
 		Addr:    address,
 		Handler: engine,
 	}
-	// errChan := make(chan error, 1)
-	// go func() {
-	// 	// log.Logger.Info("API service starting", zap.String("address", address))
-	// 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-	// 		errChan <- err
-	// 	}
-	// 	close(errChan)
-	// }()
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		return err
+	errChan := make(chan error, 1)
+	go func() {
+		fmt.Printf("API service listening on %s\n", address)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			errChan <- err
+		}
+		close(errChan)
+	}()
+	return waitForShutdown(server, errChan)
+}
+
+func waitForShutdown(server *http.Server, errChan <-chan error) error {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	defer signal.Stop(sigChan)
+
+	select {
+	case err, ok := <-errChan:
+		if ok && err != nil {
+			return err
+		}
+		return nil
+	case sig := <-sigChan:
+		return fmt.Errorf("received shutdown signal: %s", sig.String())
 	}
 
-	// return waitForShutdown(server, errChan)
+	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimout)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		return fmt.Errorf("shutdown http server failed: %w", err)
+	}
+	if err := data.Shutdown(); err != nil {
+		return fmt.Errorf("shutdown data resources failed: %w", err)
+	}
+
 	return nil
 }
