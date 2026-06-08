@@ -4,6 +4,8 @@ import (
 	"GinAdmin/internal/service"
 	"net/http"
 
+	"GinAdmin/internal/pkg/response"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,14 +24,9 @@ func NewUserController() *UserController {
 func (ctl *UserController) List(c *gin.Context) {
 	users, err := ctl.userService.ListUsers()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "query users failed",
-			"error":   err.Error(),
-		})
+		response.Resp().Fail(c, http.StatusInternalServerError, "query users failed")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": users,
-	})
+	response.Ok(c, users)
 }

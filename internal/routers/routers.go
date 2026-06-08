@@ -2,6 +2,8 @@ package routers
 
 import (
 	"GinAdmin/internal/controller"
+	"GinAdmin/internal/pkg/response"
+	"GinAdmin/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,11 +12,11 @@ import (
 func SetRouters() (*gin.Engine, error) {
 	engine := gin.Default()
 
+	engine.Use(middleware.RequestMeta()) // 注册中间件
+
 	// 模拟注册路由
 	engine.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+		response.Ok(c, "pong")
 	})
 
 
