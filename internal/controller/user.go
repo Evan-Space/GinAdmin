@@ -1,12 +1,12 @@
 package controller
 
 import (
+	"GinAdmin/internal/pkg/response"
 	"GinAdmin/internal/service"
 	"net/http"
 
-	"GinAdmin/internal/pkg/response"
-
 	"github.com/gin-gonic/gin"
+	"github.com/wannanbigpig/gin-layout/internal/dto"
 )
 
 
@@ -22,6 +22,12 @@ func NewUserController() *UserController {
 }
 
 func (ctl *UserController) List(c *gin.Context) {
+	var req dto.PageReq
+	if !request.BingQuery(c, &req) {
+		return
+	}
+	req.Normalize()
+	
 	users, err := ctl.userService.ListUsers()
 	if err != nil {
 		response.Resp().Fail(c, http.StatusInternalServerError, "query users failed")
@@ -30,3 +36,8 @@ func (ctl *UserController) List(c *gin.Context) {
 
 	response.Ok(c, users)
 }
+
+func (c *UserController) Info(ctx *gin.Context) {                                                                                                                                                                  
+	ctx.JSON(200, gin.H{"name": "test"})
+}                                                                                                                                                                                                                  
+				

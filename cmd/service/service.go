@@ -55,11 +55,7 @@ func registerFlags() {
 * 启动服务器
 **/
 func RunServer() error {
-	engine, err := routers.SetRouters()
-	if err != nil {
-		return fmt.Errorf("Failed to set routers: %v", err)
-	}
-
+	engine := routers.SetRouters()
 	address := fmt.Sprintf("%s:%d", host, port)
 	server := &http.Server{
 		Addr:    address,
@@ -88,7 +84,7 @@ func waitForShutdown(server *http.Server, errChan <-chan error) error {
 		}
 		return nil
 	case sig := <-sigChan:
-		return fmt.Errorf("received shutdown signal: %s", sig.String())
+		fmt.Errorf("received shutdown signal: %s", sig.String())
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimout)

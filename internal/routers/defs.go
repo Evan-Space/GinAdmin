@@ -1,17 +1,32 @@
 package routers
 
 import (
+	"GinAdmin/global"
+
 	"github.com/gin-gonic/gin"
 )
 
+type AuthMode = global.ApiAuthMode
 
+const (
+	AuthNone  AuthMode = 0 // 无需登录
+	AuthLogin AuthMode = 1 // 只需登录
+	AuthPerm  AuthMode = 2 // 需要权限
+)
 
+// 一条路由
 type RouteDef struct {
-	Method   string            // HTTP 方法：GET, POST, PUT, DELETE 等
-	Path     string            // 相对路径，如 "list", ":id"
-	Title    string            // 路由标题，用于 API 文档
-	Desc     string            // 路由描述，补充 Title 未涵盖的信息
-	Auth     AuthMode          // 认证授权模式，使用 AuthModeNone/Login/Auth
-	Handlers []gin.HandlerFunc // Gin 处理器链
+	Method   string
+	Path     string
+	Title    string
+	Auth     AuthMode
+	Handlers []gin.HandlerFunc
 }
 
+// 一个路由组
+type RouteGroupDef struct {
+	Prefix     string
+	Middleware []gin.HandlerFunc
+	Routes     []RouteDef
+	Children   []RouteGroupDef
+}

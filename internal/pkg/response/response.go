@@ -61,10 +61,16 @@ func (r *Response) Fail(c *gin.Context, code int, msg string, data ...any) {
 }
 
 
-
-
-
-
+/**
+* 自定义返回错误码
+**/
+func (r *Response) FailCode(c *gin.Context, code int, msg ...string) {
+	r.SetCode(code)
+	if len(msg) > 0 && msg[0] != "" {
+		r.SetMessage(msg[0])
+	}
+	r.json(c)
+}
 
 
 /**
@@ -142,7 +148,6 @@ func isObjectData(data any) bool {
 
 // json 返回 gin 框架的 JSON 响应
 func (r *Response) json(c *gin.Context) {
-	// 如果消息为空，使用错误码对应的默认消息
 
 	// 计算请求耗时
 	r.result.Cost = time.Since(c.GetTime(global.ContextKeyRequestStartTime)).String()
