@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"GinAdmin/global"
+	"GinAdmin/internal/errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -97,7 +98,11 @@ func (r *Response) SetMessage(message string) *Response {
 type defaultRes struct {
 	Result any `json:"result"`
 }
-func (r *Response) Withdata(data any) *Response {
+
+/**
+* 设置返回data数据
+**/
+func (r *Response) WithData(data any) *Response {
 	if isNilData(data) {
 		r.result.Data = emptyObject()
 		return r
@@ -155,36 +160,65 @@ func (r *Response) json(c *gin.Context) {
 	c.AbortWithStatusJSON(r.httpCode, r.result)
 }
 
-
-
-
 // 成功的返回
 func Ok(c *gin.Context, data any, msg ...string) {
-	r := Resp().Withdata(data)
+	r := Resp().WithData(data)
 	if len(msg) > 0 && msg[0] != "" {
 		r.SetMessage(msg[0])
 	}
 	r.json(c)
 }
 
-// Success 业务成功响应（便捷方法）
-// func Success(c *gin.Context, data ...any) {
-// 	if len(data) > 0 && data[0] != nil {
-// 		Resp().WithDataSuccess(c, data[0])
-// 		return
-// 	}
-// 	Resp().Success(c)
-// }
 
-// Success 正确返回
-// func (r *Response) Success(c *gin.Context) {
-// 	r.SetCode(errors.SUCCESS)
-// 	r.json(c)
-// }
+func (r *Response) Success(c *gin.Context) {
+	r.SetCode(errors.SUCCESS)
+	r.json(c)
+}
 
-// // WithDataSuccess 成功后需要返回值
-// func (r *Response) WithDataSuccess(c *gin.Context, data interface{}) {
-// 	r.SetCode(errors.SUCCESS)
-// 	r.WithData(data)
-// 	r.json(c)
-// }
+func (r *Response) WithDataSuccess(c *gin.Context, data interface{}) {
+	r.SetCode(errors.SUCCESS)
+	r.WithData(data)
+	r.json(c)
+}
+
+
+// Success 业务响应成功（便捷响应方法）
+func Success(c *gin.Context, data ...any) {
+	if len(data) > 0 && data[0] != nil {
+		Resp().WithDataSuccess(c, data[0])
+		return
+	}
+	Resp().Success(c)
+}
+
+
+// FailCode 业务失败响应（便捷响应方法）
+func FailCode(c *gin.Context, code int, data ...any) {
+	if len(data) > 0 && data[0] != nil {
+		Resp().WithData(data[0]).FailCode(c, code)
+		return
+	}
+	Resp().FailCode(c, code)
+}
+
+
+func Fail(c *gin.Context, code int, message string, data ...any) {
+	if len(data) > 0 && data[0] != nil {
+		Resp().WithData(data[0]).Fail(c, code, message)
+		return
+	}
+	Resp().Fail(c, code, message)
+}
+
+// Err 统一错误处理 
+// 判断错误类型是自定义类型则自动返回错误中携带的code和message，否则返回服务器错误
+func Err(c *gin.Context, err error) {
+	helper := errors.ErrorHelper{}
+	businessError, parseErr := helper.AsBusinessError(err)
+	if parseErr != nil {
+		FailCode(c, errors.ServerErr)
+		return
+	}
+	// BusinessError，使用其 code 和 message
+	Fail(c, businessError.GetCode(), businessError.GetMessage())
+}

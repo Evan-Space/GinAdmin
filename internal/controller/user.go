@@ -6,10 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wannanbigpig/gin-layout/internal/dto"
 )
-
-
 
 type UserController struct {
 	userService *service.UserService
@@ -23,7 +20,7 @@ func NewUserController() *UserController {
 
 func (ctl *UserController) List(c *gin.Context) {
 	var req dto.PageReq
-	if !request.BingQuery(c, &req) {
+	if !request.BindQuery(c, &req) {
 		return
 	}
 	req.Normalize()

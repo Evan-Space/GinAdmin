@@ -17,6 +17,7 @@ type Conf struct {
 	Timezone *string `yaml:"timezone"`
 	Logger   autoload.LoggerConfig `yaml:"logger"`
 	basePath string `yaml:"base_path"`
+	TTL string `yaml:"ttl"`
 }
 
 
@@ -39,7 +40,7 @@ type RedisConfig struct {
 	Enable bool `yaml:"enable"`
 }
 
-var cfg Conf 
+var cfg Conf
 
 /**
 * 获取初始化配置
