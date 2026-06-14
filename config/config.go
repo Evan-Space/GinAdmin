@@ -17,12 +17,13 @@ type Conf struct {
 	Timezone *string `yaml:"timezone"`
 	Logger   autoload.LoggerConfig `yaml:"logger"`
 	basePath string `yaml:"base_path"`
-	TTL string `yaml:"ttl"`
+	
 }
 
 
 type JWTConfig struct {
 	SecretKey string `yaml:"secret_key"`
+	TTL string `yaml:"ttl"`
 }
 
 

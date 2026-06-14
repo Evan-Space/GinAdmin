@@ -55,7 +55,7 @@ func (r *Response) Fail(c *gin.Context, code int, msg string, data ...any) {
 	r.SetCode(code)
 	r.SetMessage(msg)
 	if len(data) > 0 && data[0] != nil {
-		r.Withdata(data[0])
+		r.WithData(data[0])
 	}
 
 	r.json(c)
