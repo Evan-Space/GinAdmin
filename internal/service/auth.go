@@ -7,7 +7,6 @@ import (
 
 	"GinAdmin/internal/errors"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +38,10 @@ func (s *AuthService) Login(username, password string) (string, *model.User, err
 	}
 
 	// 验证密码
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	// if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	// 	return "", nil, errors.NewBusinessError(errors.UserPasswordWrong)
+	// }
+	if user.Password != password {                                                                                                                                                                              
 		return "", nil, errors.NewBusinessError(errors.UserPasswordWrong)
 	}
 

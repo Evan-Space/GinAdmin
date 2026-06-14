@@ -4,6 +4,7 @@ import (
 	"GinAdmin/internal/service"
 	"GinAdmin/internal/validator"
 	"GinAdmin/internal/validator/form"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,6 +32,7 @@ func (ctl *LoginController) Login(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("params", params)
 
 	token, user, err := ctl.authService.Login(params.Username, params.Password)
 
