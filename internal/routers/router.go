@@ -14,6 +14,7 @@ func SetRouters() *gin.Engine {
 	engine := gin.Default()
 	engine.Use(middleware.RequestMeta())
 	engine.Use(middleware.ParseToken())
+	engine.Use(middleware.Cors())
 	// 你的全局中间件
 	// engine.Use(middleware.Cors(), middleware.Logger())
 	RegisterRoutes(engine, AppRouteTree())
