@@ -84,7 +84,7 @@ func waitForShutdown(server *http.Server, errChan <-chan error) error {
 		}
 		return nil
 	case sig := <-sigChan:
-		fmt.Errorf("received shutdown signal: %s", sig.String())
+		fmt.Printf("received shutdown signal: %s\n", sig.String())
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimout)

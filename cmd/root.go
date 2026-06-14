@@ -41,7 +41,9 @@ var rootCmd = &cobra.Command{
 		* 初始化时区
 		*/
 		bootstrapx.InitializeTimezone()
-		// 初始化日志服务（暂时未接入日志服务）
+		if err := bootstrapx.InitializeValidator(); err != nil {
+			return err
+		}
 
 		/**
 		* 初始化数据库
