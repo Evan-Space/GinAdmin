@@ -80,6 +80,7 @@ func waitForShutdown(server *http.Server, errChan <-chan error) error {
 	select {
 	case err, ok := <-errChan:
 		if ok && err != nil {
+			
 			return err
 		}
 		return nil
