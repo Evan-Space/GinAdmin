@@ -31,7 +31,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		/**
-		* 启动项目前，先初始化配置
+		* 启动项目前，先初始化配置，查询配置文件，并初始化配置信息
 		*/
 		if err := bootstrapx.InitializeConfig(configPath); err != nil {
 			return err
@@ -98,7 +98,7 @@ func registerFlags() {
 
 /**
 * 判断是否跳过启动
-* 改函数如果返回 true ,则不用启动后续的日志等服务
+* 该函数如果返回 true ,则不用启动后续的日志等服务
 **/
 func shouldSkipBootstrap(cmd *cobra.Command) bool {
 	if cmd == nil {
