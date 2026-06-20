@@ -15,8 +15,8 @@ func NewUserService() *UserService {
 }
 
 
-func (s *UserService) ListUsers() ([]model.User, error) {
-	var users []model.User
+func (s *UserService) ListUsers() ([]model.AdminUser, error) {
+	var users []model.AdminUser
 
 	err := data.GetDB().
 		Select("id", "username", "nickname", "email", "status", "created_at", "updated_at").
@@ -27,10 +27,10 @@ func (s *UserService) ListUsers() ([]model.User, error) {
 }
 
 // GetUserByID
-func (s *UserService) GetUserByID(id uint) (*model.User, error) {
-	var user model.User
+func (s *UserService) GetUserByID(id uint) (*model.AdminUser, error) {
+	var user model.AdminUser
 	err := data.GetDB().
-		Select("id", "username", "nickname", "email", "status", "created_at", "update_at").
+		Select("id", "username", "nickname", "email", "status", "created_at", "updated_at").
 		Where("id = ?", id).
 		First(&user).Error
 

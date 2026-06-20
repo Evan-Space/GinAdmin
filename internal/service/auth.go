@@ -21,8 +21,8 @@ func NewAuthService() *AuthService {
 
 // Login 用户登陆，成功返回 JWT TOKEN
 
-func (s *AuthService) Login(username, password string) (string, *model.User, error) {
-	var user model.User
+func (s *AuthService) Login(username, password string) (string, *model.AdminUser, error) {
+	var user model.AdminUser
 	err := data.GetDB().Where("username = ?", username).First(&user).Error
 
 	if err != nil {
