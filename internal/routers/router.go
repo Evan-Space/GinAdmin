@@ -21,7 +21,6 @@ func SetRouters() *gin.Engine {
 	return engine
 }
 
-
 // AppRouteTree 应用完整路由树
 func AppRouteTree() RouteGroupDef {
 	return RouteGroupDef{
@@ -36,11 +35,12 @@ func AppRouteTree() RouteGroupDef {
 	}
 }
 
-
- // AdminRouteTree 后台路由
- func AdminRouteTree() RouteGroupDef {
+// AdminRouteTree 后台路由
+func AdminRouteTree() RouteGroupDef {
 	loginCtrl := controller.NewLoginController()
-	userCtrl  := controller.NewUserController()
+	// userCtrl  := controller.NewUserController()
+	adminUserCtrl := controller.NewAdminUserController()
+	roleCtrl := controller.NewRoleController()
 
 	return RouteGroupDef{
 		Prefix: "api/v1",
@@ -53,17 +53,38 @@ func AppRouteTree() RouteGroupDef {
 			},
 			// 需要登录的
 			{
-				// Middleware: []gin.HandlerFunc{AuthMiddleware()},  // 你的登录中间件
+				Prefix: "admin-user",
 				Routes: []RouteDef{
-					GET("user/info", "用户信息", AuthLogin, userCtrl.Info),
-					GET("user/list", "用户列表", AuthPerm,  userCtrl.List),
+					GET("get", "获取当前用户信息", AuthLogin, adminUserCtrl.GetUserInfo),
+					POST("update-profile", "更新个人资料", AuthLogin, adminUserCtrl.UpdateProfile),
+					GET("list", "用户列表", AuthPerm, adminUserCtrl.List),
+					GET("detail", "用户详情", AuthPerm, adminUserCtrl.Detail),
+					POST("create", "新增用户", AuthLogin, adminUserCtrl.Create),
+					POST("update", "更新用户", AuthLogin, adminUserCtrl.Update),
+					POST("delete", "删除用户", AuthLogin, adminUserCtrl.Delete),
+					POST("bind-role", "绑定角色", AuthLogin, adminUserCtrl.BindRole),
+				},
+
+				// // Middleware: []gin.HandlerFunc{AuthMiddleware()},  // 你的登录中间件
+				// Routes: []RouteDef{
+				// 	GET("user/info", "用户信息", AuthLogin, userCtrl.Info),
+				// 	GET("user/list", "用户列表", AuthPerm,  userCtrl.List),
+				// },
+			},
+
+			{
+				Prefix: "role",
+				Routes: []RouteDef{
+					GET("list", "角色列表", AuthLogin, roleCtrl.List),
+					GET("detail", "角色详情", AuthLogin, roleCtrl.Detail),
+					POST("create", "新增角色", AuthLogin, roleCtrl.Create),
+					POST("update", "更新角色", AuthLogin, roleCtrl.Update),
+					POST("delete", "删除角色", AuthLogin, roleCtrl.Delete),
 				},
 			},
 		},
 	}
 }
-
-
 
 func GET(path, title string, auth AuthMode, handlers ...gin.HandlerFunc) RouteDef {
 	return RouteDef{Method: http.MethodGet, Path: path, Title: title, Auth: auth, Handlers: handlers}
