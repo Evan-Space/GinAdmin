@@ -20,7 +20,7 @@ func NewMenuService() *MenuService {
 // 先查全部，再内存中构建树形结构
 func (s *MenuService) List(params *form.MenuListQuery) ([]*model.Menu, error) {
 	var menus []model.Menu
-	query := data.GetDB().Where("delete_at = 0")
+	query := data.GetDB().Where("deleted_at = 0")
 
 	if params.Keyword != "" {
 		query = query.Where("name LIKE ? OR LIKE ?", "%"+params.Keyword+"%", "%"+params.Keyword+"%")
@@ -98,7 +98,7 @@ func (s *MenuService) Create(params *form.CreateMenuForm) (*model.Menu, error) {
 	// 计算层级和 pids
 	if params.Pid > 0 {
 		var parent model.Menu
-		if err := data.GetDB().Where("id = ? AND delete_at = 0", params.Pid).First(&parent).Error; err != nil {
+		if err := data.GetDB().Where("id = ? AND deleted_at = 0", params.Pid).First(&parent).Error; err != nil {
 			return nil, err
 		}
 

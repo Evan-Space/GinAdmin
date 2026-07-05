@@ -21,7 +21,7 @@ func (s *RoleService) List(params *form.RoleListQuery) (map[string]interface{}, 
 	var roles []model.Role
 	var total int64
 
-	query := data.GetDB().Model(&model.Role{}).Where("delete_at = 0")
+	query := data.GetDB().Model(&model.Role{}).Where("deleted_at = 0")
 
 	if params.Name != "" {
 		query = query.Where("name LIKE ?", "%"+params.Name+"%")
@@ -55,7 +55,7 @@ func (s *RoleService) List(params *form.RoleListQuery) (map[string]interface{}, 
 // 角色详情
 func (s *RoleService) Detail(id uint) (*model.Role, error) {
 	var role model.Role
-	err := data.GetDB().Where("id = ? AND delete_at = 0", id).First(&role).Error
+	err := data.GetDB().Where("id = ? AND deleted_at = 0", id).First(&role).Error
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (s *RoleService) Create(params *form.CreateRoleForm) (*model.Role, error) {
 	// 如果有父角色，计算 level 和 pids
 	if params.Pid > 0 {
 		var parent model.Role
-		if err := data.GetDB().Where("id = ? AND delete_at = 0", params.Pid).First(&parent).Error; err != nil {
+		if err := data.GetDB().Where("id = ? AND deleted_at = 0", params.Pid).First(&parent).Error; err != nil {
 			return nil, err
 		}
 

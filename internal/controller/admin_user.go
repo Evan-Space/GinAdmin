@@ -5,6 +5,7 @@ import (
 	"GinAdmin/internal/service"
 	"GinAdmin/internal/validator"
 	"GinAdmin/internal/validator/form"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +31,10 @@ func (ctl *AdminUserController) GetUserInfo(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("uid", uid)
+
 	user, err := ctl.svc.GetUserInfo(uid)
+	fmt.Println("user", user)
 	if err != nil {
 		ctl.Err(c, err)
 		return

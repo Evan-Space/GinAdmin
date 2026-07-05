@@ -24,7 +24,7 @@ func (s *AdminUserService) GetUserInfo(id uint) (*model.AdminUser, error) {
 	var user model.AdminUser
 
 	err := data.GetDB().
-		Where("id = ? AND delete_at = 0", id).
+		Where("id = ? AND deleted_at = 0", id).
 		First(&user).Error
 
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *AdminUserService) List(params *form.AdminUserList) (map[string]interfac
 	var users []model.AdminUser
 	var total int64
 
-	query := data.GetDB().Model(&model.AdminUser{}).Where("delete_at = 0")
+	query := data.GetDB().Model(&model.AdminUser{}).Where("deleted_at = 0")
 
 	if params.Username != "" {
 		query = query.Where("username LIKE ?", "%"+params.Username+"%")
@@ -128,7 +128,7 @@ func (s *AdminUserService) Update(params *form.UpdateAdminUser) error {
 	}
 
 	return data.GetDB().Model(&model.AdminUser{}).
-		Where("id = ? AND delete_at = 0", params.ID).
+		Where("id = ? AND deleted_at = 0", params.ID).
 		Updates(updates).Error
 }
 
@@ -167,8 +167,8 @@ func (s *AdminUserService) UpdateProfile(uid uint, params *form.UpdateProfile) e
 func (s *AdminUserService) Delete(id uint) error {
 	return data.GetDB().
 		Model(&model.AdminUser{}).
-		Where("id = ? AND delete_at = 0", id).
-		Update("delete_at", gorm.Expr("UNIX_TIMESTAMP()")).Error
+		Where("id = ? AND deleted_at = 0", id).
+		Update("deleted_at", gorm.Expr("UNIX_TIMESTAMP()")).Error
 }
 
 // BindRole 为用户绑定角色（全量替换）
