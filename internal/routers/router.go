@@ -38,7 +38,6 @@ func AppRouteTree() RouteGroupDef {
 // AdminRouteTree 后台路由
 func AdminRouteTree() RouteGroupDef {
 	loginCtrl := controller.NewLoginController()
-	// userCtrl  := controller.NewUserController()
 	adminUserCtrl := controller.NewAdminUserController()
 	roleCtrl := controller.NewRoleController()
 	menuCtrl := controller.NewMenuController()
@@ -65,12 +64,6 @@ func AdminRouteTree() RouteGroupDef {
 					POST("delete", "删除用户", AuthLogin, adminUserCtrl.Delete),
 					POST("bind-role", "绑定角色", AuthLogin, adminUserCtrl.BindRole),
 				},
-
-				// // Middleware: []gin.HandlerFunc{AuthMiddleware()},  // 你的登录中间件
-				// Routes: []RouteDef{
-				// 	GET("user/info", "用户信息", AuthLogin, userCtrl.Info),
-				// 	GET("user/list", "用户列表", AuthPerm,  userCtrl.List),
-				// },
 			},
 
 			{

@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
+// 定义 MenuController 的结构
 type MenuController struct {
 	Api
 	svc *service.MenuService
@@ -17,7 +17,7 @@ type MenuController struct {
 
 
 func NewMenuController() *MenuController {
-	return &MenuController{
+	return &MenuController{ // 返回一个 MenuController 的实例
 		svc: service.NewMenuService(),
 	}
 }
