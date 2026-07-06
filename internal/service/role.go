@@ -102,6 +102,8 @@ func (s *RoleService) Create(params *form.CreateRoleForm) (*model.Role, error) {
 		return nil
 	})
 
+	s.refreshPolicy()
+
 	return &role, err
 }
 
@@ -129,10 +131,17 @@ func (s *RoleService) Update(params *form.UpdateRoleForm) error {
 	if len(updates) == 0 {
 		return nil
 	}
-	return data.GetDB().
+	err :=data.GetDB().
 		Model(&model.Role{}).
 		Where("id = ? AND deleted_at = 0", params.ID).
 		Updates(updates).Error
+
+	if err != nil {
+		s.refreshPolicy()
+	}
+	
+	return err
+
 }
 
 
@@ -147,7 +156,7 @@ func (s *RoleService) Delete(id uint) error {
 		return errors.NewBusinessError(errors.AuthorizationErr)
 	}
 
-	return data.GetDB().Transaction(func(tx *gorm.DB) error {
+	err := data.GetDB().Transaction(func(tx *gorm.DB) error {
 		// 软删除角色
 		tx.Model(&model.Role{}).Where("id = ?", id).Update("deleted_at", gorm.Expr("UNIX_TIMESTAMP()"))
 		// 删除角色-用户关联
@@ -156,4 +165,14 @@ func (s *RoleService) Delete(id uint) error {
 		tx.Where("role_id = ?", id).Delete(&model.RoleMenuMap{})
 		return nil
 	})
+	if err != nil {
+		s.refreshPolicy()
+	}
+	return err
+}
+
+func (s *RoleService) refreshPolicy() {
+	if err := SyncAllPolicies(); err != nil {
+		fmt.Println("刷新Casbin策略失败:", err)
+	}
 }

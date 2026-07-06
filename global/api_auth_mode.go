@@ -29,3 +29,9 @@ func (m ApiAuthMode) Label() string {
 		return "-"
 	}
 }
+
+
+// RequiresAPIPermission 返回该模式是否要求 API 权限校验
+func (m ApiAuthMode) RequiresAPIPermission() bool {
+	return m == ApiAuthModeAuth
+}
