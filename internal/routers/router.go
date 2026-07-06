@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"GinAdmin/internal/controller"
-	"GinAdmin/middleware"
+	"GinAdmin/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -68,34 +68,33 @@ func AdminRouteTree() RouteGroupDef {
 					{
 						Prefix: "admin-user",
 						Routes: []RouteDef{
-							Get("list", "用户列表", AuthPerm, adminUserCtrl.List),
 							GET("list", "用户列表", AuthPerm, adminUserCtrl.List),
 							GET("detail", "用户详情", AuthPerm, adminUserCtrl.Detail),
-							POST("create", "新增用户", AuthLogin, adminUserCtrl.Create),
-							POST("update", "更新用户", AuthLogin, adminUserCtrl.Update),
-							POST("delete", "删除用户", AuthLogin, adminUserCtrl.Delete),
-							POST("bind-role", "绑定角色", AuthLogin, adminUserCtrl.BindRole),
+							POST("create", "新增用户", AuthPerm, adminUserCtrl.Create),
+							POST("update", "更新用户", AuthPerm, adminUserCtrl.Update),
+							POST("delete", "删除用户", AuthPerm, adminUserCtrl.Delete),
+							POST("bind-role", "绑定角色", AuthPerm, adminUserCtrl.BindRole),
 						},
 					},
 					{
 						Prefix: "role",
 						Routes: []RouteDef{
-							GET("list", "角色列表", AuthLogin, roleCtrl.List),
-							GET("detail", "角色详情", AuthLogin, roleCtrl.Detail),
-							POST("create", "新增角色", AuthLogin, roleCtrl.Create),
-							POST("update", "更新角色", AuthLogin, roleCtrl.Update),
-							POST("delete", "删除角色", AuthLogin, roleCtrl.Delete),
+							GET("list", "角色列表", AuthPerm, roleCtrl.List),
+							GET("detail", "角色详情", AuthPerm, roleCtrl.Detail),
+							POST("create", "新增角色", AuthPerm, roleCtrl.Create),
+							POST("update", "更新角色", AuthPerm, roleCtrl.Update),
+							POST("delete", "删除角色", AuthPerm, roleCtrl.Delete),
 						},
 					},
 		
 					{
 						Prefix: "menu",
 						Routes: []RouteDef{
-							GET("list", "菜单列表", AuthLogin, menuCtrl.List),
-							GET("detail", "菜单详情", AuthLogin, menuCtrl.Detail),
-							POST("create", "新增菜单", AuthLogin, menuCtrl.Create),
-							POST("update", "更新菜单", AuthLogin, menuCtrl.Update),
-							POST("delete", "删除菜单", AuthLogin, menuCtrl.Delete),
+							GET("list", "菜单列表", AuthPerm, menuCtrl.List),
+							GET("detail", "菜单详情", AuthPerm, menuCtrl.Detail),
+							POST("create", "新增菜单", AuthPerm, menuCtrl.Create),
+							POST("update", "更新菜单", AuthPerm, menuCtrl.Update),
+							POST("delete", "删除菜单", AuthPerm, menuCtrl.Delete),
 						},
 					},
 					

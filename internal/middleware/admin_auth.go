@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"GinAdmin/global"
-	"GinAdmin/internal/errors"
+	"GinAdmin/internal/access/casbin"
+	"GinAdmin/internal/global"
+	"GinAdmin/internal/pkg/errors"
 	"GinAdmin/internal/pkg/response"
 	"fmt"
 

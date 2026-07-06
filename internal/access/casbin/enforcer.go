@@ -4,12 +4,12 @@ import (
 	"GinAdmin/data"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/casbin/casbin/v3"
 	"github.com/casbin/casbin/v3/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
-	"github.com/wannanbigpig/gin-layout/internal/utils/filePath"
 )
 
 type CasbinEnforcer struct {
@@ -34,13 +34,13 @@ func InitEnforcer() error {
 func doInit() error {
 	// 1. 先火球模型文件路径
 	cwd, _ := os.Getwd()
-	modelPath := filePath.Join(cwd, "rbac_model.conf")
+	modelPath := filepath.Join(cwd, "rbac_model.conf")
 	if _, err := os.Stat(modelPath); os.IsNotExist(err) {
 		return fmt.Errorf("Casbin 模型文件不存在: %s", modelPath)
 	}
 
 	// 2. 加载模型
-	m, err := model.NewModelFormFile(modelPath)
+	m, err := model.NewModelFromFile(modelPath);
 	if err != nil {
 		return fmt.Errorf("加载 Casbin 模型失败: %w", err)
 	}
@@ -51,7 +51,7 @@ func doInit() error {
 		return fmt.Errorf("数据库未初始化")
 	}
 	// 4. 创建 GORM 适配器（策略存储在 casbin_rule 表）
-	gormadapter.TurnOffAutoMigrate(db) // 不使用自动迁移
+	// gormadapter.TurnOffAutoMigrate(db) // 不使用自动迁移
 	adapter, err := gormadapter.NewAdapterByDB(db)
 	if err != nil {
 		return fmt.Errorf("创建 Casbin 适配器失败: %w", err)

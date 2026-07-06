@@ -2,7 +2,7 @@ package utils
 
 import (
 	"GinAdmin/config"
-	"GinAdmin/internal/errors"
+	"GinAdmin/internal/pkg/errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

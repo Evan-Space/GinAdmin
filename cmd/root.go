@@ -6,11 +6,11 @@ import (
 	"strings"
 
 	"GinAdmin/cmd/bootstrapx"
-	"GinAdmin/cmd/service"
+	cmd_service "GinAdmin/cmd/service"
 	"GinAdmin/data"
-	svc "GinAdmin/internal/service/casbin_sync"
+	svc "GinAdmin/internal/service"
 
-	"GinAdmin/internal/access/casbinx"
+	casbinx "GinAdmin/internal/access/casbin"
 
 	"github.com/spf13/cobra"
 )
@@ -98,7 +98,7 @@ func init() {
 * 注册全局命令
 **/
 func registerCommands() {
-	rootCmd.AddCommand(service.ServeCmd)
+	rootCmd.AddCommand(cmd_service.ServeCmd)
 }
 
 /**

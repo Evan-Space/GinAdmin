@@ -5,7 +5,7 @@ import (
 
 	req "GinAdmin/internal/pkg/request"
 
-	"GinAdmin/global"
+	"GinAdmin/internal/global"
 
 	"github.com/gin-gonic/gin"
 )

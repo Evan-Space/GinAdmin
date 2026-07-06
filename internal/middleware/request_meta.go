@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"GinAdmin/global"
+	"GinAdmin/internal/global"
 	"time"
 
 	"github.com/gin-gonic/gin"

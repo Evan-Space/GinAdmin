@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"GinAdmin/global"
+	"GinAdmin/internal/global"
 
 	"github.com/gin-gonic/gin"
 )

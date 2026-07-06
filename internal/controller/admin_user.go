@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"GinAdmin/internal/errors"
+	"GinAdmin/internal/pkg/errors"
 	"GinAdmin/internal/service"
 	"GinAdmin/internal/validator"
 	"GinAdmin/internal/validator/form"

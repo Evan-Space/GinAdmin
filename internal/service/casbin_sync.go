@@ -2,7 +2,7 @@ package service
 
 import (
 	"GinAdmin/data"
-	"GinAdmin/internal/access/casbinx"
+	"GinAdmin/internal/access/casbin"
 	"fmt"
 	"log"
 )

@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"time"
 
-	"GinAdmin/global"
-	"GinAdmin/internal/errors"
+	"GinAdmin/internal/global"
+	"GinAdmin/internal/pkg/errors"
 
 	"github.com/gin-gonic/gin"
 )

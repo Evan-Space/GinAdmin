@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"GinAdmin/global"
-	"GinAdmin/internal/errors"
+	"GinAdmin/internal/global"
+	"GinAdmin/internal/pkg/errors"
 	"GinAdmin/internal/pkg/response"
 
 	"github.com/gin-gonic/gin"

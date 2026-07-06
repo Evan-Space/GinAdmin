@@ -2,7 +2,7 @@ package service
 
 import (
 	"GinAdmin/data"
-	"GinAdmin/internal/errors"
+	"GinAdmin/internal/pkg/errors"
 	"GinAdmin/internal/model"
 	"GinAdmin/internal/validator/form"
 	"fmt"

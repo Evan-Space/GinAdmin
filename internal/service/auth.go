@@ -5,7 +5,7 @@ import (
 	"GinAdmin/internal/model"
 	"GinAdmin/internal/pkg/utils"
 
-	"GinAdmin/internal/errors"
+	"GinAdmin/internal/pkg/errors"
 
 	"gorm.io/gorm"
 )
