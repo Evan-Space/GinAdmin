@@ -4,10 +4,10 @@ package form
 type LoginForm struct {
 	Username string `form:"username" json:"username" binding:"required,min=3,max=16"`
 	Password string `form:"password" json:"password" binding:"required,min=6,max=18"`
-	Nickname string `json:"nickname" binding:"required,min=1,max=30"`
-	Email    string `json:"email" binding:"omitempty,email,max=120"`
-	Phone    string `json:"phone_number" binding:"omitempty,max=15"`
-	Status   *uint8 `json:"status" binding:"omitempty,oneof=0 1"`
+	// Nickname string `json:"nickname" binding:"required,min=1,max=30"`
+	// Email    string `json:"email" binding:"omitempty,email,max=120"`
+	// Phone    string `json:"phone_number" binding:"omitempty,max=15"`
+	// Status   *uint8 `json:"status" binding:"omitempty,oneof=0 1"`
 }
 
 // CreateAdminUser 新增用户

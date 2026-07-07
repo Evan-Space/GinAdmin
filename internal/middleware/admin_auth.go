@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"GinAdmin/internal/access/casbin"
+	casbinx "GinAdmin/internal/access/casbin"
 	"GinAdmin/internal/global"
 	"GinAdmin/internal/pkg/errors"
 	"GinAdmin/internal/pkg/response"
@@ -17,13 +17,13 @@ func AdminAuthHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 1. 获取当前用户 ID (ParseToken 中间件写入)
 		uid := c.GetUint(global.ContextKeyUID)
-		if uid == 0 {
+		if uid == 0 { // 如果用户 ID 为 0，则认为用户未登录
 			response.FailCode(c, errors.NotLogin)
 			c.Abort()
 			return
 		}
 		// 2. 超级管理直接放行
-		if uid == global.SuperAdminId {
+		if uid == global.SuperAdminId { // 如果用户 ID 为超级管理员 ID，则直接放行
 			c.Next()
 			return
 		}
