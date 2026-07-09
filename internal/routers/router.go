@@ -41,7 +41,8 @@ func AdminRouteTree() RouteGroupDef {
 	adminUserCtrl := controller.NewAdminUserController()
 	roleCtrl := controller.NewRoleController()
 	menuCtrl := controller.NewMenuController()
-
+	deptCtrl := controller.NewDeptController()
+	
 	return RouteGroupDef{
 		Prefix: "api/v1",
 		Children: []RouteGroupDef{
@@ -95,6 +96,18 @@ func AdminRouteTree() RouteGroupDef {
 							POST("create", "新增菜单", AuthPerm, menuCtrl.Create),
 							POST("update", "更新菜单", AuthPerm, menuCtrl.Update),
 							POST("delete", "删除菜单", AuthPerm, menuCtrl.Delete),
+						},
+					},
+
+					{
+						Prefix: "department",
+						Routes: []RouteDef{
+							GET("list", "部门列表", AuthPerm, deptCtrl.List),
+							GET("detail", "部门详情", AuthPerm, deptCtrl.Detail),
+							POST("create", "新增部门", AuthPerm, deptCtrl.Create),
+							POST("update", "更新部门", AuthPerm, deptCtrl.Update),
+							POST("delete", "删除部门", AuthPerm, deptCtrl.Delete),
+							POST("bind-role", "部门绑定角色", AuthPerm, deptCtrl.BindRole),
 						},
 					},
 					

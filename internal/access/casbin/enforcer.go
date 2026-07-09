@@ -32,7 +32,7 @@ func InitEnforcer() error {
 }
 
 func doInit() error {
-	// 1. 先火球模型文件路径
+	// 1. 先获取模型文件路径
 	cwd, _ := os.Getwd()
 	modelPath := filepath.Join(cwd, "rbac_model.conf")
 	if _, err := os.Stat(modelPath); os.IsNotExist(err) {

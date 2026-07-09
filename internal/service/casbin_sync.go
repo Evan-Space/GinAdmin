@@ -2,7 +2,7 @@ package service
 
 import (
 	"GinAdmin/data"
-	"GinAdmin/internal/access/casbin"
+	casbinx "GinAdmin/internal/access/casbin"
 	"fmt"
 	"log"
 )
@@ -10,6 +10,7 @@ import (
 // Syn AllPolicies 同步所有用户的 Casbin 策略
 // 策略格式： p, adminUser:{uid}, /api/v1/xxx, GET
 // 调用时机，启动时 + 角色/菜单关联变更时
+// 在这里把业务表摊平写入 casbin_rule 表
 func SyncAllPolicies() error {
 	enforcer, err := casbinx.GetEnforcer()
 	if err != nil {
