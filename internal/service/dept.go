@@ -77,17 +77,17 @@ func (s *DeptService) Create(params *form.CreateDeptForm) (*model.Department, er
 	if params.Pid > 0 {
 		var parent model.Department
 		if err := data.GetDB().Where("id = ? AND deleted_at = 0", params.Pid).First(&parent).Error; err != nil {
-			return nil. errors.NewBusinessError(errors.NotFound, "父部门不存在")
+			return nil, errors.NewBusinessError(errors.NotFound, "父部门不存在")
 		}
 		dept.Level = parent.Level + 1
 		if parent.Pids != "" {
-			dept.Pid = parent.Pids + "," + fmt.Sprintf("%d", parent.ID)
+			dept.Pids = parent.Pids + "," + fmt.Sprintf("%d", parent.ID)
 		} else {
 			dept.Pids = fmt.Sprintf("%d", parent.ID)
 		}
 	}
 
-	err := data.GetDB().Transaction(func(tx *form.DB) error {
+	err := data.GetDB().Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&dept).Error; err != nil {
 			return err
 		}
@@ -125,7 +125,7 @@ func (s *DeptService) Update(params *form.UpdateDeptForm) error {
 	if len(updates) == 0 {
 		return nil
 	}
-	return date.GetDB().
+	return data.GetDB().
 		Model(&model.Department{}).
 		Where("id = ? AND deleted_at = 0", params.ID).
 		Updates(updates).Error
@@ -143,7 +143,7 @@ func (s *DeptService) Delete(id uint) error {
 	// 检查是否是系统部门
 	var dept model.Department
 	data.GetDB().Where("id = ? AND deleted_at = 0", id).First(&dept)
-	if dept.IsSystem {
+	if dept.IsSystem == 1 {
 		return errors.NewBusinessError(errors.AuthorizationErr, "系统部门不能删除")
 	}
 
