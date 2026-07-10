@@ -2,6 +2,7 @@ package bootstrapx
 
 import (
 	"GinAdmin/config"
+	"GinAdmin/internal/pkg/logger"
 	"GinAdmin/internal/validator"
 	"time"
 )
@@ -34,7 +35,7 @@ func InitializeTimezone() {
 * 初始化日志
 */
 func InitializeLogger()  error {
-	return nil
+	return logger.InitLogger()
 }
 
 

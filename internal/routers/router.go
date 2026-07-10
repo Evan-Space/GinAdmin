@@ -15,6 +15,7 @@ func SetRouters() *gin.Engine {
 	engine.Use(middleware.RequestMeta())
 	engine.Use(middleware.ParseToken())
 	engine.Use(middleware.Cors())
+	engine.Use(middleware.CustomLogger())  // ← 新加
 	// 你的全局中间件
 	// engine.Use(middleware.Cors(), middleware.Logger())
 	RegisterRoutes(engine, AppRouteTree())
@@ -42,7 +43,7 @@ func AdminRouteTree() RouteGroupDef {
 	roleCtrl := controller.NewRoleController()
 	menuCtrl := controller.NewMenuController()
 	deptCtrl := controller.NewDeptController()
-	
+
 	return RouteGroupDef{
 		Prefix: "api/v1",
 		Children: []RouteGroupDef{

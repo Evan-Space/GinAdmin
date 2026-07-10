@@ -49,6 +49,13 @@ var rootCmd = &cobra.Command{
 		}
 
 		/**
+		* 初始化日志
+		 */
+		if err := bootstrapx.InitializeLogger(); err != nil {
+			return err
+		}
+
+		/**
 		* 初始化数据库
 		 */
 		err := data.Initialize()

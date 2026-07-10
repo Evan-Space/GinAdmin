@@ -16,7 +16,7 @@ type Conf struct {
 	Redis RedisConfig `yaml:"redis"`
 	Timezone *string `yaml:"timezone"`
 	Logger   autoload.LoggerConfig `yaml:"logger"`
-	basePath string `yaml:"base_path"`
+	BasePath string `yaml:"base_path"`
 	
 }
 
@@ -65,7 +65,7 @@ func InitConfig(path string) error {
 	if err != nil {
 		return err
 	}
-	cfg.basePath = basePath
+	cfg.BasePath = basePath
 
 	return nil
 }
