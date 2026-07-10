@@ -20,7 +20,7 @@ redis:
 logger:
   output: file
   default_division: time
-  file_name: "gin-admin.sys.log
+  file_name: "gin-admin.sys.log"
   division_time:
     max_age: 15
     rotation_time: 24
@@ -29,6 +29,3 @@ logger:
     max_backups: 15
     max_age: 15
     compress: false
-
-
-BasePath: ./
