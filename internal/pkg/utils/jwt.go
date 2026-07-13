@@ -10,13 +10,12 @@ import (
 )
 
 type CustomClaims struct {
-	UserID uint `json:"user_id"`
+	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
-
-/// GenerateToken 生成 jwt token
+// / GenerateToken 生成 jwt token
 func GenerateToken(userID uint, username string) (string, error) {
 	cfg := config.GetConfig()
 
@@ -38,7 +37,6 @@ func GenerateToken(userID uint, username string) (string, error) {
 		},
 	}
 
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString([]byte(cfg.JWT.SecretKey))
 	if err != nil {
@@ -46,7 +44,7 @@ func GenerateToken(userID uint, username string) (string, error) {
 	}
 
 	return tokenStr, nil
-	
+
 }
 
 // ParseToken 解析 jwt token
@@ -68,6 +66,10 @@ func ParseToken(accessToken string) (*CustomClaims, error) {
 		return claims, nil
 	}
 
-
 	return nil, errors.NewBusinessError(errors.NotLogin)
+}
+
+// RefreshToken 用旧 token 中的信息签发新的 token
+func RefreshToken(claims *CustomClaims) (string, error) {
+	return GenerateToken(claims.UserID, claims.Username)
 }

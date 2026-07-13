@@ -11,31 +11,28 @@ import (
 * 整个项目配置信息的类型
 **/
 type Conf struct {
-	JWT JWTConfig `yaml:"jwt"`
-	MySQl MySQLConfig `yaml:"mysql"`
-	Redis RedisConfig `yaml:"redis"`
-	Timezone *string `yaml:"timezone"`
+	JWT      JWTConfig             `yaml:"jwt"`
+	MySQl    MySQLConfig           `yaml:"mysql"`
+	Redis    RedisConfig           `yaml:"redis"`
+	Timezone *string               `yaml:"timezone"`
 	Logger   autoload.LoggerConfig `yaml:"logger"`
-	BasePath string `yaml:"base_path"`
-	
+	BasePath string                `yaml:"base_path"`
 }
-
 
 type JWTConfig struct {
-	SecretKey string `yaml:"secret_key"`
-	TTL string `yaml:"ttl"`
+	SecretKey  string `yaml:"secret_key"`
+	TTL        string `yaml:"ttl"`
+	RefreshTTL string `yaml:"refresh_ttl` // refresh 模式下新 token 有效期（可选，比 ttl 长）
 }
 
-
 type MySQLConfig struct {
-	Enable bool `yaml:"enable"`
-	Host string `yaml:"host"`
-	Port int `yaml:"port"`
+	Enable   bool   `yaml:"enable"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
 	Database string `yaml:"database"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 }
-
 
 type RedisConfig struct {
 	Enable bool `yaml:"enable"`
@@ -56,7 +53,6 @@ func InitConfig(path string) error {
 		return err
 	}
 
-
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return err
 	}
@@ -73,11 +69,6 @@ func InitConfig(path string) error {
 func GetConfig() *Conf {
 	return &cfg
 }
-
-
-
-
-
 
 /**
 * 配置重载处理器
@@ -103,21 +94,21 @@ func GetConfig() *Conf {
 
 // RegisterConfigReloadHandler 注册配置热更新回调。
 // func RegisterConfigReloadHandler(handler ConfigReloadHandler) {
-	// if handler.Name == "" {
-	// 	return
-	// }
+// if handler.Name == "" {
+// 	return
+// }
 
-	// reloadHandlersMu.Lock()
-	// defer reloadHandlersMu.Unlock()
+// reloadHandlersMu.Lock()
+// defer reloadHandlersMu.Unlock()
 
-	// for i := range reloadHandlers {
-	// 	if reloadHandlers[i].Name == handler.Name {
-	// 		reloadHandlers[i] = handler
-	// 		sortConfigReloadHandlersLocked()
-	// 		return
-	// 	}
-	// }
+// for i := range reloadHandlers {
+// 	if reloadHandlers[i].Name == handler.Name {
+// 		reloadHandlers[i] = handler
+// 		sortConfigReloadHandlersLocked()
+// 		return
+// 	}
+// }
 
-	// reloadHandlers = append(reloadHandlers, handler)
-	// sortConfigReloadHandlersLocked()
+// reloadHandlers = append(reloadHandlers, handler)
+// sortConfigReloadHandlersLocked()
 // }

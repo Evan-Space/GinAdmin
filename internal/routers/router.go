@@ -45,6 +45,7 @@ func AdminRouteTree() RouteGroupDef {
 	menuCtrl := controller.NewMenuController()
 	deptCtrl := controller.NewDeptController()
 	dashboardCtrl := controller.NewDashboardController()
+	authCtrl := controller.NewAuthController()
 
 	return RouteGroupDef{
 		Prefix: "api/v1",
@@ -54,6 +55,12 @@ func AdminRouteTree() RouteGroupDef {
 			{
 				Routes: []RouteDef{
 					POST("login", "登录", AuthNone, loginCtrl.Login),
+				},
+			},
+			{
+				Routes: []RouteDef{
+					POST("auth/refresh-token", "刷新Token", AuthLogin, authCtrl.RefreshToken),
+					GET("auth/check-token", "检查Token", AuthLogin, authCtrl.CheckToken),
 				},
 			},
 			{
