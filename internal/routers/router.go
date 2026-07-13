@@ -15,7 +15,7 @@ func SetRouters() *gin.Engine {
 	engine.Use(middleware.RequestMeta())
 	engine.Use(middleware.ParseToken())
 	engine.Use(middleware.Cors())
-	engine.Use(middleware.CustomLogger())  // ← 新加
+	engine.Use(middleware.CustomLogger()) // ← 新加
 	// 你的全局中间件
 	// engine.Use(middleware.Cors(), middleware.Logger())
 	RegisterRoutes(engine, AppRouteTree())
@@ -43,18 +43,25 @@ func AdminRouteTree() RouteGroupDef {
 	roleCtrl := controller.NewRoleController()
 	menuCtrl := controller.NewMenuController()
 	deptCtrl := controller.NewDeptController()
+	dashboardCtrl := controller.NewDashboardController()
 
 	return RouteGroupDef{
 		Prefix: "api/v1",
 		Children: []RouteGroupDef{
 			// ---- 公开接口（AuthNone）----
-				// 不需要登录的
+			// 不需要登录的
 			{
 				Routes: []RouteDef{
 					POST("login", "登录", AuthNone, loginCtrl.Login),
 				},
 			},
-				// 需要登录的
+			{
+				Prefix: "dashboard",
+				Routes: []RouteDef{
+					GET("overview", "仪表盘概览", AuthLogin, dashboardCtrl.Overview),
+				},
+			},
+			// 需要登录的
 			{
 				Prefix: "admin-user",
 				Routes: []RouteDef{
@@ -88,7 +95,7 @@ func AdminRouteTree() RouteGroupDef {
 							POST("delete", "删除角色", AuthPerm, roleCtrl.Delete),
 						},
 					},
-		
+
 					{
 						Prefix: "menu",
 						Routes: []RouteDef{
@@ -111,11 +118,8 @@ func AdminRouteTree() RouteGroupDef {
 							POST("bind-role", "部门绑定角色", AuthPerm, deptCtrl.BindRole),
 						},
 					},
-					
 				},
 			},
-
-			
 		},
 	}
 }
