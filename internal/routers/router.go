@@ -12,10 +12,11 @@ import (
 // SetRouters 创建引擎并注册所有路由
 func SetRouters() *gin.Engine {
 	engine := gin.Default()
+	engine.Use(middleware.CustomRecovery())
 	engine.Use(middleware.RequestMeta())
 	engine.Use(middleware.ParseToken())
 	engine.Use(middleware.Cors())
-	engine.Use(middleware.CustomLogger()) // ← 新加
+	engine.Use(middleware.CustomLogger())
 	// 你的全局中间件
 	// engine.Use(middleware.Cors(), middleware.Logger())
 	RegisterRoutes(engine, AppRouteTree())
@@ -25,11 +26,11 @@ func SetRouters() *gin.Engine {
 // AppRouteTree 应用完整路由树
 func AppRouteTree() RouteGroupDef {
 	return RouteGroupDef{
-		Routes: []RouteDef{
-			GET("ping", "心跳", AuthNone, func(c *gin.Context) {
-				c.String(200, "pong")
-			}),
-		},
+		// Routes: []RouteDef{
+		// 	GET("ping", "心跳", AuthNone, func(c *gin.Context) {
+		// 		c.String(200, "pong")
+		// 	}),
+		// },
 		Children: []RouteGroupDef{
 			AdminRouteTree(),
 		},
