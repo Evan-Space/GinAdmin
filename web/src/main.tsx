@@ -1,5 +1,18 @@
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import "@src/style/global.css";
+import { createRoot } from 'react-dom/client'
+import '@src/style/global.css'
+import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { routeTree } from './routeTree.gen'
 
-createRoot(document.getElementById("root") as HTMLElement).render(<App />);
+const router = createRouter({
+    routeTree: routeTree,
+})
+
+// 注册路由类型，Link/useNavigate 才有类型提示
+declare module '@tanstack/react-router' {
+    interface Register {
+        router: typeof router
+    }
+}
+
+
+createRoot(document.getElementById('root') as HTMLElement).render(<RouterProvider router={router} />)

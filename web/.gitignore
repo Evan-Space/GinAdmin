@@ -5,3 +5,5 @@
 /test
 /tools
 /vendor
+/src/routeTree.gen.ts
+.tanstack/
