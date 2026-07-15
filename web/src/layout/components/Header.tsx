@@ -20,9 +20,8 @@ export default function HeaderComponent() {
                     type="text"
                     style={{ fontSize: 16 }}
                 >
-                    {/* {collapsed ? '☰' : '⇤'} */}
+                    GinAdmin
                 </Button>
-                {/* <Text type="secondary">首页 / 仪表盘</Text> */}
             </Space>
             <Space align="center" size="middle">
                 <Button type="default">帮助</Button>
