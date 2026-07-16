@@ -1,9 +1,8 @@
-import { Layout, Menu, MenuProps } from 'antd'
+import { Layout, Menu } from 'antd'
 const { Sider } = Layout
 import { useSideMenuStore } from '@src/store/sideMenu'
-import { HomeOutlined, UserOutlined } from '@ant-design/icons'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
-
+import { MENU_LIST } from '@src/layout/constants'
 
 export default function SiderComponent() {
 
@@ -11,16 +10,7 @@ export default function SiderComponent() {
     const pathname = useRouterState({ select: (state) => state.location.pathname })
     const navigate = useNavigate()
 
-    const menuItems: MenuProps['items'] = [
-        { key: "/", label: "首页", icon: <HomeOutlined /> },
-        { key: "/permission", label: "权限管理", icon: <UserOutlined /> },
-        { key: "/log", label: "操作日志", icon: <UserOutlined />, children: [
-            { key: "/log/requestLog", label: "请求日志", icon: <UserOutlined /> },
-            { key: "/log/errorLog", label: "错误日志", icon: <UserOutlined /> },
-        ] },
-        { key: "/task", label: "任务中心", icon: <UserOutlined /> },
-        { key: "/setting", label: "系统管理", icon: <UserOutlined /> },
-    ]
+
 
 
 
@@ -41,7 +31,7 @@ export default function SiderComponent() {
                 defaultOpenKeys={['system']}
                 selectedKeys={[pathname]}
                 style={{ borderInlineEnd: 'none' }}
-                items={menuItems}
+                items={MENU_LIST}
                 onClick={({key}) => {
                     navigate({ to: key })
                 }}
