@@ -65,9 +65,9 @@ func (ctl *AdminUserController) UpdateProfile(c *gin.Context) {
 
 // List 用户列表
 func (ctl *AdminUserController) List(c *gin.Context) {
-	params := &form.AdminUserList{ 
-		Paginate: form.Paginate{ Page: 1, PerPage: 10 },
-	 }
+	params := &form.AdminUserList{
+		Paginate: form.Paginate{Page: 1, PerPage: 10},
+	}
 	if err := validator.CheckQueryParams(c, params); err != nil {
 		return
 	}
@@ -135,7 +135,6 @@ func (ctl *AdminUserController) Delete(c *gin.Context) {
 	ctl.Success(c, nil)
 }
 
-
 // BindRole 为用户绑定角色
 func (ctl *AdminUserController) BindRole(c *gin.Context) {
 	params := &form.BindRoleForm{}
@@ -147,4 +146,14 @@ func (ctl *AdminUserController) BindRole(c *gin.Context) {
 		return
 	}
 	ctl.Success(c, nil)
+}
+
+// UserNameOptions 用户名称枚举值
+func (ctl *AdminUserController) UserNameOptions(c *gin.Context) {
+	result, err := ctl.svc.UserNameOptions()
+	if err != nil {
+		ctl.Err(c, err)
+		return
+	}
+	ctl.Success(c, result)
 }

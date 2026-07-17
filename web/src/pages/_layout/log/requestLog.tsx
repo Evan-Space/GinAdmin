@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/setting')({
+export const Route = createFileRoute('/_layout/log/requestLog')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <div>Hello "/setting"!</div>
+  return <div>Hello "/log"!</div>
 }

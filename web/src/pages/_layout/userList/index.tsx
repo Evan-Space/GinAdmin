@@ -1,9 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Table, Form, Select, Input, Space } from 'antd'
-import { TableColumns, dataSource, NameSelectOptions } from './constant'
-import { FieldType } from './types'
+import { TableColumns, dataSource, NameSelectOptions } from './-constant'
+import { FieldType } from './-types'
+import { useUserList } from './-hooks'
 
-export const Route = createFileRoute('/userList/')({
+
+
+export const Route = createFileRoute('/_layout/userList/')({
     component: RouteComponent,
 })
 
@@ -11,6 +14,13 @@ export const Route = createFileRoute('/userList/')({
 
 
 function RouteComponent() {
+
+    const { data } = useUserList()
+
+    // console.log(USER_NAME_LIST_OPTIONS)
+    // console.log(userListData)
+
+
     return (
         <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
             <Form

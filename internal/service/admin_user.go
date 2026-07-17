@@ -6,6 +6,8 @@ import (
 	"GinAdmin/internal/validator/form"
 
 	"gorm.io/gorm"
+
+	"GinAdmin/internal/pkg/errors"
 )
 
 type AdminUserService struct{}
@@ -76,18 +78,17 @@ func (s *AdminUserService) List(params *form.AdminUserList) (map[string]interfac
 	}, nil
 }
 
-
 /**
 * 新增用户
-*/
+ */
 func (s *AdminUserService) Create(params *form.CreateAdminUser) (*model.AdminUser, error) {
-	user := model.AdminUser {
-		Username: params.Username,
-		Password: params.Password,
-		Nickname: params.Nickname,
-		Email: params.Email,
+	user := model.AdminUser{
+		Username:    params.Username,
+		Password:    params.Password,
+		Nickname:    params.Nickname,
+		Email:       params.Email,
 		PhoneNumber: params.Phone,
-		Status: 1,
+		Status:      1,
 	}
 
 	if params.Status != nil {
@@ -101,9 +102,9 @@ func (s *AdminUserService) Create(params *form.CreateAdminUser) (*model.AdminUse
 
 /**
 * Update 更新用户
-*/
+ */
 func (s *AdminUserService) Update(params *form.UpdateAdminUser) error {
-	updates := map[string]interface{} {}
+	updates := map[string]interface{}{}
 	if params.Username != "" {
 		updates["username"] = params.Username
 	}
@@ -132,10 +133,9 @@ func (s *AdminUserService) Update(params *form.UpdateAdminUser) error {
 		Updates(updates).Error
 }
 
-
 /**
 * UpdateProfile 更新个人用户
-*/
+ */
 func (s *AdminUserService) UpdateProfile(uid uint, params *form.UpdateProfile) error {
 	updates := map[string]interface{}{}
 	if params.Nickname != "" {
@@ -160,10 +160,9 @@ func (s *AdminUserService) UpdateProfile(uid uint, params *form.UpdateProfile) e
 		Updates(updates).Error
 }
 
-
 /**
 * Delete 软删除用户
-*/
+ */
 func (s *AdminUserService) Delete(id uint) error {
 	return data.GetDB().
 		Model(&model.AdminUser{}).
@@ -187,4 +186,27 @@ func (s *AdminUserService) BindRole(params *form.BindRoleForm) error {
 		}
 		return nil
 	})
+}
+
+func (ctl *AdminUserService) UserNameOptions() ([]map[string]any, error) {
+	var users []model.AdminUser
+
+	if err := data.GetDB().
+		Model(&model.AdminUser{}).
+		Select("id, username").
+		Where("deleted_at = 0").
+		Find(&users).Error; err != nil {
+		return nil, errors.NewBusinessError(errors.ServerErr, "error fetching user name options: %s")
+	}
+
+	result := make([]map[string]any, 0, len(users))
+
+	for _, u := range users {
+		result = append(result, map[string]any{
+			"label": u.Username,
+			"value": u.ID,
+		})
+	}
+
+	return result, nil
 }

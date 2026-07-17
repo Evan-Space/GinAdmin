@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/permission')({
+export const Route = createFileRoute('/_layout/log/errorLog')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <div>Hello "/permission"!</div>
+  return <div>Hello "/log/errorLog"!</div>
 }
