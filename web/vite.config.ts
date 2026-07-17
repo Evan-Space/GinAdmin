@@ -12,8 +12,8 @@ export default defineConfig({
             routesDirectory: './src/pages',  
             generatedRouteTree: './src/routeTree.gen.ts', // 生成的 routeTree 文件位置
         }),
-        react(),
         tailwindcss(),
+        react(),
     ],
     server: {
         port: 3002,
