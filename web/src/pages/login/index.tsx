@@ -32,6 +32,10 @@ function LoginPage() {
                     layout="vertical"
                     onFinish={handleSubmit}
                     autoComplete="off"
+                    initialValues={{
+                        username: 'super_admin',
+                        password: '123456',
+                    }}
                 >
                     <Form.Item
                         label="用户名"
