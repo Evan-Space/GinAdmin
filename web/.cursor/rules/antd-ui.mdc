@@ -1,0 +1,41 @@
+---
+description: React TSX 文件中的 Ant Design 和后台 UI 规则。
+globs: src/**/*.{tsx,css}
+alwaysApply: false
+---
+
+# Ant Design UI 规则
+
+修改视觉 UI、布局、表单、表格、抽屉、弹窗或主题 token 时使用本规则。
+
+## 视觉方向
+
+- 这是后台管理系统。优先优化清晰度、信息密度、重复使用效率和快速扫描能力。
+- 优先使用 Ant Design 组件：`Table`、`Form`、`Input`、`Select`、`Button`、`Drawer`、`Modal`、`Tabs`、`Tag`、`Space`、`Flex`、`Card`、`App`。
+- 使用 `src/style/antdTheme.ts` 中已有主题 token。
+- 圆角保持克制，并与当前主题一致。
+- 不要为后台工作流创建 landing page hero、营销式面板或装饰图形。
+
+## 布局
+
+- 全局布局保持在 `src/layout` 中。
+- 路由页面内容要与现有布局和间距一致。
+- 避免 card 嵌套 card，除非内部 card 是真实的重复项或弹窗内容。
+- toolbar、filter、table、pagination 和 action 区域在 loading 前后要保持稳定。
+
+## 表格
+
+- column 要有明确标题、data key，必要时指定宽度，并保持 action render 稳定。
+- 数据密集页面必须包含 empty、loading 和 error 状态。
+- 删除、禁用等破坏性操作必须二次确认。
+
+## 表单
+
+- 用户必填输入使用 Ant Design `Form` validation rules。
+- option list 使用受控数据，并为 option value 定义类型。
+- 请求 pending 时禁用提交操作。
+
+## AI UI
+
+- AI assistant UI 应当像后台工具：紧凑 drawer 或 panel、清晰状态、必要时显示引用/上下文标签，并对操作要求用户明确确认。
+- AI 生成内容应明确呈现为建议，不要表现为自动修改。

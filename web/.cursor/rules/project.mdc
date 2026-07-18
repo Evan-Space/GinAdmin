@@ -1,0 +1,53 @@
+---
+description: GinAdmin web 前端的项目级 AI 协作规则。
+alwaysApply: true
+---
+
+# GinAdmin Web 项目规则
+
+本规则适用于 `web` 前端项目内的所有工作。
+
+## 项目定位
+
+- 这是 GinAdmin 管理系统的前端项目。
+- 前端技术栈是 Vite、React、TypeScript、Ant Design、TanStack Router、Zustand、ahooks 和 Tailwind CSS。
+- 将它视为实用型后台管理系统，不要按营销官网的方式设计。
+- 界面应当安静、紧凑、易扫描，适合高频的运营和管理操作。
+
+## 当前结构
+
+- App 入口：`web/src/main.tsx`
+- 根路由和 Ant Design provider：`web/src/pages/__root.tsx`
+- 文件式路由：`web/src/pages`
+- 布局外壳：`web/src/layout`
+- API 模块：`web/src/request`
+- 主题 token：`web/src/style/antdTheme.ts`
+- 全局 CSS 和 Tailwind 引入：`web/src/style/global.css`
+- 全局客户端状态：`web/src/store`
+
+## 工作规则
+
+- 只修改与当前需求相关的前端区域。
+- 保持现有 TypeScript 严格配置。
+- 优先使用项目已有库，不轻易新增依赖。
+- 不要手动编辑 `web/src/routeTree.gen.ts`，它由 TanStack Router 自动生成。
+- 不要把密钥、模型 API Key 或服务商凭证放进前端代码。
+- 前端 AI 功能必须调用后端 API 或 mock client，不能直接调用模型服务商 API。
+- 如果某个决策会帮助后续 AI agent 理解项目，请同步更新 `web/docs/ai`。
+
+## 质量要求
+
+- 组件要有清晰类型，并保持在容易阅读的规模内。
+- 新增较大功能时，优先按 feature 组织代码。
+- 引入源码文件时，优先使用 `@src/*`。
+- 新代码避免使用 `any`；如果边界确实未知，优先使用 `unknown` 或定义本地类型。
+- 面向用户的流程必须明确 loading、empty、error 和 disabled 状态。
+- 不要添加影响后台操作效率的装饰性 UI。
+
+## AI 协作协议
+
+- 实现非简单功能前，先阅读 `web/docs/ai` 中相关文档。
+- 新增页面时，遵循 `web/docs/ai/skills/add-page.md`。
+- 新增 API 模块时，遵循 `web/docs/ai/skills/add-api-module.md`。
+- 新增表格管理页时，遵循 `web/docs/ai/skills/add-table-page.md`。
+- 新增 AI UI 时，遵循 `web/docs/ai/skills/add-ai-feature.md`。

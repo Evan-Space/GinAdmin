@@ -1,0 +1,46 @@
+---
+description: API 请求、DTO、auth token 和前端数据边界规则。
+globs: src/request/**/*.{ts,tsx},src/features/**/services/**/*.{ts,tsx},src/features/**/types.ts
+alwaysApply: false
+---
+
+# API 请求规则
+
+编辑前端 request client、feature service 或 API DTO 类型时使用本规则。
+
+## 现有 API 层
+
+- 共享请求工具位于 `web/src/request/request.ts`。
+- API 模块从 `web/src/request/index.ts` 统一导出。
+- 当前开发环境后端 base URL 是 localhost 下的 `/api/v1`。
+
+## 请求标准
+
+- auth token 应在每次请求时读取，不要在模块初始化时只读取一次。
+- 只有 token 存在时才设置 `Authorization: Bearer <token>`。
+- 401 处理集中在共享请求工具中。
+- 返回值要有类型。
+- JSON 解析错误、网络错误和业务错误应以可预测结构暴露。
+- 当调用方期望 API 响应对象时，不要把错误吞成泛泛的 `Error`。
+
+## DTO 标准
+
+- 为请求参数和响应 payload 定义 DTO 类型。
+- API 响应 envelope 保持与后端结构一致：
+
+```ts
+type FetchResponse<T> = {
+  code: number
+  msg: string
+  cost: number
+  request_id: string
+  data: T
+}
+```
+
+## AI 功能边界
+
+- 浏览器代码绝不能直接调用 OpenAI、Anthropic、Gemini 或其他模型服务商。
+- 前端 AI service 应调用 GinAdmin 后端接口或本地 mock client。
+- 只有后端流式接口存在时，才通过共享 `fetchStream` helper 增加 streaming 支持。
+- 将用户可见数据发送给 AI 功能前，应尽可能做前端脱敏。

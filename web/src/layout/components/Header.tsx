@@ -1,8 +1,15 @@
-import { Layout, Space, Button, Avatar } from 'antd'
+import { Layout, Space, Button, message } from 'antd'
 const { Header } = Layout
+import { useNavigate } from '@tanstack/react-router'
 
 export default function HeaderComponent() {
 
+    const navigate = useNavigate()
+    const handleLogout = () => {
+        localStorage.removeItem('auth_token')
+        message.success('退出成功')
+        navigate({ to: '/login' })
+    }
     return (
         <Header
             style={{
@@ -26,7 +33,7 @@ export default function HeaderComponent() {
             <Space align="center" size="middle">
                 <Button type="default">帮助</Button>
                 <Button type="primary">新建</Button>
-                <Avatar style={{ background: '#7C6FF0' }}>用户名</Avatar>
+                <Button type="primary" onClick={handleLogout}>退出</Button>
             </Space>
         </Header>
     )
