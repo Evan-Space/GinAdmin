@@ -33,3 +33,6 @@ go.work.sum
 
 .DS_Store
 docs/
+!web/docs/
+!web/docs/ai/
+!web/docs/ai/**

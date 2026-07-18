@@ -50,4 +50,5 @@ alwaysApply: true
 - 新增页面时，遵循 `web/docs/ai/skills/add-page.md`。
 - 新增 API 模块时，遵循 `web/docs/ai/skills/add-api-module.md`。
 - 新增表格管理页时，遵循 `web/docs/ai/skills/add-table-page.md`。
+- 新增或改造 Ant Design UI 时，遵循 `web/docs/ai/skills/use-antd.md`，并按场景阅读 Table、Form、Drawer/Modal、Filter Toolbar 专项 skill。
 - 新增 AI UI 时，遵循 `web/docs/ai/skills/add-ai-feature.md`。

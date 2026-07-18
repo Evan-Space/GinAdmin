@@ -8,6 +8,16 @@ alwaysApply: false
 
 修改视觉 UI、布局、表单、表格、抽屉、弹窗或主题 token 时使用本规则。
 
+复杂 Ant Design 工作流请优先阅读：
+
+```text
+web/docs/ai/skills/use-antd.md
+web/docs/ai/skills/add-antd-table.md
+web/docs/ai/skills/add-antd-form.md
+web/docs/ai/skills/add-antd-drawer-modal.md
+web/docs/ai/skills/add-filter-toolbar.md
+```
+
 ## 视觉方向
 
 - 这是后台管理系统。优先优化清晰度、信息密度、重复使用效率和快速扫描能力。

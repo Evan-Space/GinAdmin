@@ -65,6 +65,7 @@ docs/ai/tasks.md
 .cursor/rules/ai-feature.mdc          前端 AI 功能
 docs/ai/security-and-privacy.md       AI 安全与隐私
 docs/ai/ai-feature-blueprint.md       AI 功能蓝图
+docs/ai/skills/use-antd.md            Ant Design 总规则
 ```
 
 ## 开发命令
@@ -156,6 +157,11 @@ docs/ai/skills/add-api-module.md     新增 API 模块
 docs/ai/skills/add-table-page.md     新增表格管理页
 docs/ai/skills/add-ai-feature.md     新增前端 AI 功能
 docs/ai/skills/refactor-component.md 重构组件
+docs/ai/skills/use-antd.md           Ant Design 总规则
+docs/ai/skills/add-antd-table.md     新增或改造 Table
+docs/ai/skills/add-antd-form.md      新增或改造 Form
+docs/ai/skills/add-antd-drawer-modal.md Drawer / Modal 工作流
+docs/ai/skills/add-filter-toolbar.md 筛选区和工具栏
 ```
 
 ## 修改原则
