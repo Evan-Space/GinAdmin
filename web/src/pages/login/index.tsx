@@ -1,50 +1,28 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Card, Form, Input, message, Typography } from 'antd'
+import { Button, Card, Form, Input, Typography } from 'antd'
+import { useLogin } from './hooks'
 
-const BASE_URL = 'http://localhost:8080/api/v1'
+export const Route = createFileRoute('/login/')({
+    component: LoginPage,
+})
+
+
 
 type LoginFormValues = {
     username: string
     password: string
 }
 
-export const Route = createFileRoute('/login/')({
-    component: RouteComponent,
-})
 
-function RouteComponent() {
-    const navigate = useNavigate()
-    const [form] = Form.useForm<LoginFormValues>()
-    const [messageApi, contextHolder] = message.useMessage()
 
-    const handleSubmit = async (values: LoginFormValues) => {
-        try {
-            const response = await fetch(`${BASE_URL}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(values),
-            })
-            const result = await response.json()
 
-            if (result.code !== 0) {
-                messageApi.error(result.msg || '登录失败')
-                return
-            }
-
-            localStorage.setItem('auth_token', result.data.access_token)
-            messageApi.success('登录成功')
-            navigate({ to: '/' })
-        } catch {
-            messageApi.error('网络异常，请稍后重试')
-        }
-    }
-
+function LoginPage() {
+    
+    const { form, handleSubmit } = useLogin()
+ 
     return (
         <div className="flex min-h-screen items-center justify-center">
-            {contextHolder}
             <Card style={{ width: 400 }}>
                 <Typography.Title level={3} style={{ marginBottom: 24, textAlign: 'center' }}>
                     系统登录

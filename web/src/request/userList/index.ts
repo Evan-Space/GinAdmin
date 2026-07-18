@@ -1,4 +1,4 @@
-import { GET } from '../index'
+import { GET } from '@src/request/request'
 
 
 
