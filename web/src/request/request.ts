@@ -12,10 +12,10 @@ export interface fetchResponse<T> {
     data: T
 }
 
-const getToken = () => {
+export const getToken = () => {
     return localStorage.getItem(TOKEN_KEY) || ''
 }
-function redirectToLogin() {
+export const redirectToLogin = () => {
     localStorage.removeItem(TOKEN_KEY)
     window.location.href = '/login'
 }
