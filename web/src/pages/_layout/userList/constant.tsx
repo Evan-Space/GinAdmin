@@ -1,55 +1,38 @@
-export const TableColumns = [
+import { UserListItemType } from './types'
+import { ColumnsType } from 'antd/es/table'
+
+
+export const TableColumns: ColumnsType<UserListItemType> = [
     {
-        key: 'id',
-        label: 'ID',
-        accessorKey: 'id',
+        title: 'ID',
+        dataIndex: 'id',
+        align: 'center',
     },
     {
-        key: 'name',
-        label: 'Name',
-        accessorKey: 'name',
+        title: 'Name',
+        dataIndex: 'nickname',
+        align: 'center',
     },
     {
-        title: '姓名',
-        dataIndex: 'name',
-        key: 'name',
+        title: 'username',
+        dataIndex: 'username',
+        align: 'center',
     },
     {
-        title: '年龄',
-        dataIndex: 'age',
-        key: 'age',
-    },
-    {
-        title: '住址',
+        title: 'address',
         dataIndex: 'address',
         key: 'address',
-    },
-]
-
-export const dataSource = [
-    {
-        key: '1',
-        name: '胡彦斌',
-        age: 32,
-        address: '西湖区湖底公园1号',
+        align: 'center',
+        render: (text: string) => {
+            return text ? text : '-'
+        },
     },
     {
-        key: '2',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-    },
-]
-
-
-
-export const NameSelectOptions = [
-    { label: '张三', value: '张三' },
-    { label: '李四', value: '李四' },
-    { label: '王五', value: '王五' },
-    { label: '赵六', value: '赵六' },
-    { label: '孙七', value: '孙七' },
-    { label: '周八', value: '周八' },
-    { label: '吴九', value: '吴九' },
-    { label: '郑十', value: '郑十' },
+        title: 'email',
+        dataIndex: 'email',
+        align: 'center',
+        render: (text: string) => {
+            return text ? text : '-'
+        },
+    }
 ]

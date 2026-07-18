@@ -1,5 +1,6 @@
 import { GET } from '@src/request/request'
-import { OPTIONS_ENUM_TYPE } from '@src/types'
+import { OPTIONS_ENUM_TYPE, PaginationType } from '@src/types'
+import { UserListItemType } from '@src/pages/_layout/userList/types'
 
 
 
@@ -15,5 +16,5 @@ export const getUserNameListOptionsAPI = async () => {
  * 获取用户列表
 */
 export const getUserListAPI = async () => {
-    return GET('/admin-user/list')
+    return GET<{ list: UserListItemType[] } & PaginationType>('/admin-user/list')
 }
