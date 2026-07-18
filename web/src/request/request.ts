@@ -82,8 +82,4 @@ const POST = async <T>(url: string, data: any, config?: RequestInit): Promise<fe
         })
 }
 
-
-export {
-    GET,
-    POST,
-}
+export { GET, POST }

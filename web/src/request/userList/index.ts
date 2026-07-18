@@ -1,4 +1,5 @@
 import { GET } from '@src/request/request'
+import { OPTIONS_ENUM_TYPE } from '@src/types'
 
 
 
@@ -6,9 +7,7 @@ import { GET } from '@src/request/request'
  * 获取用户名称枚举值
  * */ 
 export const getUserNameListOptionsAPI = async () => {
-    console.log('getUserNameListOptionsAPI')
-    const res = await GET('/admin-user/userNameOptions')
-    return res
+    return GET<OPTIONS_ENUM_TYPE[]>('/admin-user/userNameOptions')
 }
 
 
@@ -16,6 +15,5 @@ export const getUserNameListOptionsAPI = async () => {
  * 获取用户列表
 */
 export const getUserListAPI = async () => {
-    const res = await GET('/admin-user/list')
-    return res
+    return GET('/admin-user/list')
 }

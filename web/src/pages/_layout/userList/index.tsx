@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Table, Form, Select, Input, Space } from 'antd'
-import { TableColumns, dataSource, NameSelectOptions } from './-constant'
-import { FieldType } from './-types'
-import { useUserList } from './-hooks'
+import { TableColumns, dataSource, NameSelectOptions } from './constant'
+import { FieldType } from './types'
+import { useUserList } from './hooks'
 
 
 
@@ -15,10 +15,10 @@ export const Route = createFileRoute('/_layout/userList/')({
 
 function RouteComponent() {
 
-    const { data } = useUserList()
+    const { USER_NAME_LIST_OPTIONS } = useUserList()
 
-    // console.log(USER_NAME_LIST_OPTIONS)
-    // console.log(userListData)
+    console.log(USER_NAME_LIST_OPTIONS)
+    console.log(111)
 
 
     return (
@@ -32,7 +32,7 @@ function RouteComponent() {
                     name="name"
                 >
                     <Select
-                        options={NameSelectOptions}
+                        options={USER_NAME_LIST_OPTIONS}
                     />
                 </Form.Item>
 

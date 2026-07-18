@@ -11,23 +11,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
 type Result struct {
-	Code    int         `json:"code"`
-	Msg 	string      `json:"msg"`
-	Data    interface{} `json:"data"`
-	Cost    string      `json:"cost"`
-	RequestId string    `json:"request_id"`
+	Code      int         `json:"code"`
+	Msg       string      `json:"msg"`
+	Data      interface{} `json:"data"`
+	Cost      string      `json:"cost"`
+	RequestId string      `json:"request_id"`
 }
-
 
 func NewResult() *Result {
 	return &Result{
-		Code: 0,
-		Msg: "",
-		Data: emptyObject(),
-		Cost: "",
+		Code:      0,
+		Msg:       "",
+		Data:      emptyObject(),
+		Cost:      "",
 		RequestId: "",
 	}
 }
@@ -35,20 +32,18 @@ func NewResult() *Result {
 // 响应处理器类型
 type Response struct {
 	httpCode int
-	result *Result
-	msgKey string
-	msgArgs []any
+	result   *Result
+	msgKey   string
+	msgArgs  []any
 }
-
 
 // 响应处理器构造函数
 func Resp() *Response {
 	return &Response{
 		httpCode: http.StatusOK,
-		result: NewResult(),
+		result:   NewResult(),
 	}
 }
-
 
 // Fail 错误的返回
 func (r *Response) Fail(c *gin.Context, code int, msg string, data ...any) {
@@ -61,7 +56,6 @@ func (r *Response) Fail(c *gin.Context, code int, msg string, data ...any) {
 	r.json(c)
 }
 
-
 /**
 * 自定义返回错误码
 **/
@@ -73,14 +67,12 @@ func (r *Response) FailCode(c *gin.Context, code int, msg ...string) {
 	r.json(c)
 }
 
-
 /**
 * 空对象
 **/
 func emptyObject() map[string]any {
 	return map[string]any{}
 }
-
 
 func (r *Response) SetCode(code int) *Response {
 	r.result.Code = code
@@ -93,7 +85,6 @@ func (r *Response) SetMessage(message string) *Response {
 	r.msgArgs = nil
 	return r
 }
-
 
 type defaultRes struct {
 	Result any `json:"result"`
@@ -109,7 +100,7 @@ func (r *Response) WithData(data any) *Response {
 	}
 
 	if !isObjectData(data) {
-		r.result.Data = &defaultRes{ Result: data }
+		r.result.Data = &defaultRes{Result: data}
 		return r
 	}
 
@@ -141,15 +132,13 @@ func isObjectData(data any) bool {
 	}
 
 	switch value.Kind() {
-		case reflect.Struct, reflect.Map:
-			return true
-		default:
-			return false
+	case reflect.Struct, reflect.Map, reflect.Slice, reflect.Array:
+		return true
+	default:
+		return false
 	}
 
 }
-
-
 
 // json 返回 gin 框架的 JSON 响应
 func (r *Response) json(c *gin.Context) {
@@ -169,7 +158,6 @@ func Ok(c *gin.Context, data any, msg ...string) {
 	r.json(c)
 }
 
-
 func (r *Response) Success(c *gin.Context) {
 	r.SetCode(errors.SUCCESS)
 	r.json(c)
@@ -181,7 +169,6 @@ func (r *Response) WithDataSuccess(c *gin.Context, data interface{}) {
 	r.json(c)
 }
 
-
 // Success 业务响应成功（便捷响应方法）
 func Success(c *gin.Context, data ...any) {
 	if len(data) > 0 && data[0] != nil {
@@ -190,7 +177,6 @@ func Success(c *gin.Context, data ...any) {
 	}
 	Resp().Success(c)
 }
-
 
 // FailCode 业务失败响应（便捷响应方法）
 func FailCode(c *gin.Context, code int, data ...any) {
@@ -201,7 +187,6 @@ func FailCode(c *gin.Context, code int, data ...any) {
 	Resp().FailCode(c, code)
 }
 
-
 func Fail(c *gin.Context, code int, message string, data ...any) {
 	if len(data) > 0 && data[0] != nil {
 		Resp().WithData(data[0]).Fail(c, code, message)
@@ -210,7 +195,7 @@ func Fail(c *gin.Context, code int, message string, data ...any) {
 	Resp().Fail(c, code, message)
 }
 
-// Err 统一错误处理 
+// Err 统一错误处理
 // 判断错误类型是自定义类型则自动返回错误中携带的code和message，否则返回服务器错误
 func Err(c *gin.Context, err error) {
 	helper := errors.ErrorHelper{}
