@@ -13,7 +13,7 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/spf13/cobra v1.10.2
 	go.uber.org/zap v1.28.0
-	gopkg.in/natefinch/lumberjack.v2 v2.2.1+incompatible
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.1
 	gorm.io/plugin/soft_delete v1.2.1
