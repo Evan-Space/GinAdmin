@@ -1,0 +1,32 @@
+timezone: "Asia/Shanghai"
+
+jwt:
+  secret_key: "your-256-bit-secret-key"
+  ttl: "2h"
+  refresh_ttl: "168h"
+
+mysql:
+  enable: true
+  host: mysql
+  port: 3306
+  database: GinAdminMysql
+  username: root
+  password: 123456
+
+
+
+redis:
+  enable: false
+
+logger:
+  output: file
+  default_division: time
+  file_name: "gin-admin.sys.log"
+  division_time:
+    max_age: 15
+    rotation_time: 24
+  division_size: 
+    max_size: 100
+    max_backups: 15
+    max_age: 15
+    compress: false

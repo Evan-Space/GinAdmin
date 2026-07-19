@@ -26,11 +26,11 @@ func SetRouters() *gin.Engine {
 // AppRouteTree 应用完整路由树
 func AppRouteTree() RouteGroupDef {
 	return RouteGroupDef{
-		// Routes: []RouteDef{
-		// 	GET("ping", "心跳", AuthNone, func(c *gin.Context) {
-		// 		c.String(200, "pong")
-		// 	}),
-		// },
+		Routes: []RouteDef{
+			GET("ping", "心跳", AuthNone, func(c *gin.Context) {
+				c.String(200, "pong")
+			}),
+		},
 		Children: []RouteGroupDef{
 			AdminRouteTree(),
 		},
