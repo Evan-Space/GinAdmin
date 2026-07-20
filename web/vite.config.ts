@@ -11,6 +11,7 @@ export default defineConfig({
             autoCodeSplitting: true,
             routesDirectory: './src/pages',  
             generatedRouteTree: './src/routeTree.gen.ts', // 生成的 routeTree 文件位置
+            routeFileIgnorePattern: '(-|hooks|types|constant)',  // 忽略 hooks/types/constant
         }),
         tailwindcss(),
         react(),
