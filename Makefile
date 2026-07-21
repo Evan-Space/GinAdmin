@@ -9,6 +9,7 @@ help:
 	@echo "  make logs       实时查看所有日志"
 	@echo "  make logs-back  实时查看后端日志"
 	@echo "  make dev-frontend-local  启动本地前端项目（用 pnpm dev，不用 Docker）"
+	@echo "  make dev-backend-local  启动本地后端项目（用 go run main.go server，不用 Docker）"
 
 up:
 	docker compose up -d
@@ -29,3 +30,5 @@ log-back:
 	docker compose logs -f gin-admin-backend
 dev-frontend-local:
 	cd web && pnpm dev
+dev-backend-local:
+	go run main.go server
