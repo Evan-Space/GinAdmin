@@ -1,5 +1,5 @@
 export interface FieldType {
-    name: string
+    nickname: string
     age: string
 }
 

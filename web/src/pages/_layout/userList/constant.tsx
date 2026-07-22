@@ -6,33 +6,33 @@ export const TableColumns: ColumnsType<UserListItemType> = [
     {
         title: 'ID',
         dataIndex: 'id',
-        align: 'center',
+        width: 100,
     },
     {
-        title: 'Name',
+        title: 'Nickname',
         dataIndex: 'nickname',
-        align: 'center',
+        width: 100,
     },
     {
         title: 'username',
         dataIndex: 'username',
-        align: 'center',
+        width: 100,
     },
     {
         title: 'address',
         dataIndex: 'address',
         key: 'address',
-        align: 'center',
         render: (text: string) => {
             return text ? text : '-'
         },
+        width: 100,
     },
     {
         title: 'email',
         dataIndex: 'email',
-        align: 'center',
         render: (text: string) => {
             return text ? text : '-'
         },
+        width: 100,
     }
 ]

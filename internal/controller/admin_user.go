@@ -66,9 +66,9 @@ func (ctl *AdminUserController) UpdateProfile(c *gin.Context) {
 // List 用户列表
 func (ctl *AdminUserController) List(c *gin.Context) {
 	params := &form.AdminUserList{
-		Paginate: form.Paginate{Page: 1, PerPage: 10},
+		Paginate: form.Paginate{CurrentPage: 1, PageSize: 10},
 	}
-	if err := validator.CheckQueryParams(c, params); err != nil {
+	if err := validator.CheckPostParams(c, params); err != nil {
 		return
 	}
 	result, err := ctl.svc.List(params)

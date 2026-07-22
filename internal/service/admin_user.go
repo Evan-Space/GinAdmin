@@ -45,18 +45,19 @@ func (s *AdminUserService) List(params *form.AdminUserList) (map[string]interfac
 	query := data.GetDB().Model(&model.AdminUser{}).Where("deleted_at = 0")
 
 	if params.Username != "" {
-		query = query.Where("username LIKE ?", "%"+params.Username+"%")
+		// query = query.Where("username = LIKE", "%"+params.Username+"%")
+		query = query.Where("username = ?", params.Username)
 	}
 
 	if params.Nickname != "" {
-		query = query.Where("nickname LIKE ?", "%"+params.Nickname+"%")
+		query = query.Where("nickname = ?", params.Nickname)
 	}
 
 	if params.Status != nil {
 		query = query.Where("status = ?", *params.Status)
 	}
 	if params.Email != "" {
-		query = query.Where("email LIKE ?", "%"+params.Email+"%")
+		query = query.Where("email = ?", params.Email)
 	}
 
 	// 总数
@@ -65,16 +66,16 @@ func (s *AdminUserService) List(params *form.AdminUserList) (map[string]interfac
 	}
 
 	// 分页
-	offset := (params.Page - 1) * params.PerPage
-	if err := query.Order("id ASC").Offset(offset).Limit(params.PerPage).Find(&users).Error; err != nil {
+	offset := (params.CurrentPage - 1) * params.PageSize
+	if err := query.Order("id ASC").Offset(offset).Limit(params.PageSize).Find(&users).Error; err != nil {
 		return nil, err
 	}
 
 	return map[string]interface{}{
-		"list":     users,
-		"total":    total,
-		"page":     params.Page,
-		"per_page": params.PerPage,
+		"list":        users,
+		"total":       total,
+		"currentPage": params.CurrentPage,
+		"pageSize":    params.PageSize,
 	}, nil
 }
 
@@ -193,7 +194,7 @@ func (ctl *AdminUserService) UserNameOptions() ([]map[string]any, error) {
 
 	if err := data.GetDB().
 		Model(&model.AdminUser{}).
-		Select("id, username").
+		Select("id, nickname").
 		Where("deleted_at = 0").
 		Find(&users).Error; err != nil {
 		return nil, errors.NewBusinessError(errors.ServerErr, "error fetching user name options: %s")
@@ -203,7 +204,7 @@ func (ctl *AdminUserService) UserNameOptions() ([]map[string]any, error) {
 
 	for _, u := range users {
 		result = append(result, map[string]any{
-			"label": u.Username,
+			"label": u.Nickname,
 			"value": u.ID,
 		})
 	}

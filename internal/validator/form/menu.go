@@ -16,7 +16,6 @@ type CreateMenuForm struct {
 	Description string `json:"description" binding:"omitempty,max=255"`
 }
 
-
 // UpdateMenuForm 更新菜单
 type UpdateMenuForm struct {
 	ID          uint   `json:"id" binding:"required"`
@@ -34,7 +33,6 @@ type UpdateMenuForm struct {
 	Description string `json:"description" binding:"omitempty,max=255"`
 }
 
-
 // MenuListQuery 菜单列表查询
 type MenuListQuery struct {
 	Paginate
@@ -44,5 +42,5 @@ type MenuListQuery struct {
 
 // NewMenuListQuery 创建菜单列表查询
 func NewMenuListQuery() *MenuListQuery {
-	return &MenuListQuery{Paginate: Paginate{Page: 1, PerPage: 100}}
+	return &MenuListQuery{Paginate: Paginate{CurrentPage: 1, PageSize: 10}}
 }

@@ -30,5 +30,5 @@ type RoleListQuery struct {
 
 // NewRoleListQuery 创建角色列表查询
 func NewRoleListQuery() *RoleListQuery {
-	return &RoleListQuery{Paginate: Paginate{Page: 1, PerPage: 10}}
+	return &RoleListQuery{Paginate: Paginate{CurrentPage: 1, PageSize: 10}}
 }

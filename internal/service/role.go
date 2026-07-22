@@ -38,8 +38,8 @@ func (s *RoleService) List(params *form.RoleListQuery) (map[string]interface{}, 
 		return nil, err
 	}
 
-	offset := (params.Page - 1) * params.PerPage
-	query = query.Order("sort ASC, id ASC").Offset(offset).Limit(params.PerPage)
+	offset := (params.CurrentPage - 1) * params.PageSize
+	query = query.Order("sort ASC, id ASC").Offset(offset).Limit(params.PageSize)
 	if err := query.Find(&roles).Error; err != nil {
 		return nil, err
 	}
@@ -47,8 +47,8 @@ func (s *RoleService) List(params *form.RoleListQuery) (map[string]interface{}, 
 	return map[string]interface{}{
 		"list":     roles,
 		"total":    total,
-		"page":     params.Page,
-		"per_page": params.PerPage,
+		"currentPage":     params.CurrentPage,
+		"pageSize": params.PageSize,
 	}, nil
 }
 

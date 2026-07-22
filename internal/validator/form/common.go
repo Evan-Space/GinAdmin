@@ -2,15 +2,17 @@ package form
 
 // 分页参数查询
 type Paginate struct {
-	Page    int `form:"page" json:"page" binding:"omitempty,gt=0"`
-	PerPage int `form:"per_page" json:"per_page" binding:"omitempty,gt=0"`
+	// Page    int `form:"page" json:"page" binding:"omitempty,gt=0"`
+	// PerPage int `form:"per_page" json:"per_page" binding:"omitempty,gt=0"`
+	CurrentPage int `form:"currentPage" json:"currentPage" binding:"omitempty,gt=0"`
+	PageSize    int `form:"pageSize" json:"pageSize" binding:"omitempty,gt=0"`
+	// TotalCount int `form:"total_count" json:"total_count" binding:"omitempty,gt=0"`
 }
 
 // NewPaginate 创建一个新的分页查询
 func NewPaginate() *Paginate {
 	return &Paginate{}
 }
-
 
 // IDForm ID 查询/删除参数
 type IDForm struct {

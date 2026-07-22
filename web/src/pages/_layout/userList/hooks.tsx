@@ -1,8 +1,20 @@
+import { useState } from 'react'
 
 import { getUserNameListOptionsAPI, getUserListAPI } from '@src/request/userList'
 import { OPTIONS_ENUM_TYPE } from '@src/types'
+import { useForm } from 'antd/es/form/Form'
+import { FieldType } from './types'
+
+import { PaginationType } from '@src/types'
+
 
 export const useUserList = () => {
+    const [form] = useForm<FieldType>()
+    const [paginations, setPaginations] = useState<PaginationType>({
+        currentPage: 1,
+        pageSize: 10,
+        totalCount: 0
+    })
     /**
      * 获取用户名称枚举值
      */
@@ -14,7 +26,7 @@ export const useUserList = () => {
             }
             return res.data.map((item: OPTIONS_ENUM_TYPE) => ({
                 label: item.label,
-                value: item.value,
+                value: item.label,
             }))
         } catch (error) {
             return []
@@ -24,9 +36,12 @@ export const useUserList = () => {
     /**
      * 获取用户列表
      */
-    const handleGetUserList = async () => {
+    const handleGetUserList = async (params: Partial<FieldType>) => {
         try {
-            const res = await getUserListAPI()
+            const res = await getUserListAPI({
+                ...params,
+                ...paginations,
+            })
             if (res.code !== 0) {
                 throw new Error(res.msg)
             }
@@ -37,7 +52,8 @@ export const useUserList = () => {
     }
 
     return {
+        form,
         handleGetUserNameListOptions,
-        handleGetUserList
+        handleGetUserList,
     }
 }
