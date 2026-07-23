@@ -7,10 +7,17 @@ export interface OPTIONS_ENUM_TYPE {
 }
 
 /**
- * 分页
+ * 请求中的分页参数，不带 total
  */
-export interface PaginationType {
+export interface PaginationTypeQuery {
     currentPage: number
     pageSize: number
-    totalCount: number
+}
+
+
+/**
+ * 接口响应中的 分页数据，带 total
+ */
+export interface PaginationTypeResponse extends PaginationTypeQuery {
+    total: number
 }

@@ -1,6 +1,6 @@
 import { GET, POST } from '@src/request/request'
-import { OPTIONS_ENUM_TYPE, PaginationType } from '@src/types'
-import { UserListItemType } from '@src/pages/_layout/userList/types'
+import { OPTIONS_ENUM_TYPE, PaginationTypeQuery, PaginationTypeResponse } from '@src/types'
+import { UserListItemType} from '@src/pages/_layout/userList/types'
 import { FieldType as UserListFormType } from '@src/pages/_layout/userList/types'
 
 
@@ -16,6 +16,6 @@ export const getUserNameListOptionsAPI = async () => {
 /**
  * 获取用户列表
 */
-export const getUserListAPI = async (params: Partial<UserListFormType> & PaginationType) => {
-    return POST<{ list: UserListItemType[] } & PaginationType>('/admin-user/list', params)
+export const getUserListAPI = async (params: Partial<UserListFormType> & PaginationTypeQuery) => {
+    return POST<{ list: UserListItemType[] } & PaginationTypeResponse>('/admin-user/list', params)
 }
