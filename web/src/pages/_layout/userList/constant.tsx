@@ -19,6 +19,11 @@ export const TableColumns: ColumnsType<UserListItemType> = [
         width: 100,
     },
     {
+        title: 'age',
+        dataIndex: 'age',
+        width: 100,
+    },
+    {
         title: 'address',
         dataIndex: 'address',
         key: 'address',

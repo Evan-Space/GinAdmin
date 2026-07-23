@@ -1,12 +1,12 @@
 export interface FieldType {
     nickname: string
-    age: string
+    age: number
 }
 
 
 export interface UserListItemType {
     id: string
     name: string
-    age: string
+    age: number
     address: string
 }

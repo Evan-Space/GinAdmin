@@ -59,6 +59,9 @@ func (s *AdminUserService) List(params *form.AdminUserList) (map[string]interfac
 	if params.Email != "" {
 		query = query.Where("email = ?", params.Email)
 	}
+	if params.Age != "" {
+		query = query.Where("age = ?", params.Age)
+	}
 
 	// 总数
 	if err := query.Count(&total).Error; err != nil {

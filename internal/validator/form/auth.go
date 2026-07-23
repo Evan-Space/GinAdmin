@@ -20,7 +20,6 @@ type CreateAdminUser struct {
 	Status   *uint8 `json:"status" binding:"omitempty,oneof=0 1"`
 }
 
-
 // UpdateAdminUser 更新用户（ID 必填，其余字段可选）
 type UpdateAdminUser struct {
 	ID       uint   `json:"id" binding:"required"`
@@ -47,6 +46,7 @@ type AdminUserList struct {
 	Nickname string `form:"nickname" json:"nickname"`
 	Status   *uint8 `form:"status" json:"status"`
 	Email    string `form:"email" json:"email"`
+	Age      string `form:"age" json:"age"`
 }
 
 // BindRoleForm 为用户绑定角色
