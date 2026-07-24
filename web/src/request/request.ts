@@ -72,8 +72,12 @@ const POST = async <T>(url: string, data: any, config?: RequestInit): Promise<fe
     })
         .then(async (responseData) => {
             const result = await responseData.json()
-            if (result.code === 401) {
-                redirectToLogin()
+            switch (result.code) {
+                case 401:
+                    redirectToLogin()
+                    break
+                default:
+                    break
             }
             return result
         })
@@ -82,8 +86,4 @@ const POST = async <T>(url: string, data: any, config?: RequestInit): Promise<fe
         })
 }
 
-
-export {
-    GET,
-    POST,
-}
+export { GET, POST }

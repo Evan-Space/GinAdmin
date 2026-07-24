@@ -3,36 +3,14 @@ import { Table, Form, Select, Input, Space, Button } from 'antd'
 import { TableColumns } from './constant'
 import { FieldType } from './types'
 import { useUserList } from './hooks'
-import { useRequest } from 'ahooks'
 import { UserListItemType } from './types'
-import { omitEmptyValues } from '@src/utils/utils'
-import { handleRequestError } from '@src/utils/utils'
-import { PaginationTypeQuery } from '@src/types'
 
 export const Route = createFileRoute('/_layout/userList/')({
     component: RouteComponent,
 })
 
 function RouteComponent() {
-    const { form, pagination, handleGetUserNameListOptions, handleGetUserList } =
-        useUserList()
-
-    const { data: USER_NAME_LIST_OPTIONS = [] } = useRequest(handleGetUserNameListOptions)
-    const { data: user_list_data = [], run: runGetUserList } = useRequest(handleGetUserList)
-
-    /**
-     * 搜索
-     */
-    const handleSearch = (params: Partial<FieldType> & PaginationTypeQuery) => {
-        const apiParams: Partial<FieldType> & PaginationTypeQuery = {
-            ...omitEmptyValues({
-                ...form.getFieldsValue(),
-            }),
-            ...pagination,
-            ...params,
-        }
-        runGetUserList(apiParams)
-    }
+    const { form, pagination, USER_NAME_LIST_OPTIONS, user_list_data, handleSearch } = useUserList()
 
     return (
         <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
@@ -49,7 +27,11 @@ function RouteComponent() {
                     <Input />
                 </Form.Item>
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" onClick={() => handleSearch({ currentPage: 1, pageSize: 10 })}>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        onClick={() => handleSearch({ currentPage: 1, pageSize: 10 })}
+                    >
                         Search
                     </Button>
                 </Form.Item>
