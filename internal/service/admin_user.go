@@ -4,6 +4,7 @@ import (
 	"GinAdmin/data"
 	"GinAdmin/internal/model"
 	"GinAdmin/internal/validator/form"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -87,18 +88,17 @@ func (s *AdminUserService) List(params *form.AdminUserList) (map[string]interfac
  */
 func (s *AdminUserService) Create(params *form.CreateAdminUser) (*model.AdminUser, error) {
 	user := model.AdminUser{
-		Username:    params.Username,
-		Password:    params.Password,
-		Nickname:    params.Nickname,
-		Email:       params.Email,
-		PhoneNumber: params.Phone,
-		Status:      1,
+		Username: params.Username,
+		Password: params.Password,
+		Nickname: params.Nickname,
+		Age:      params.Age,
 	}
 
 	if params.Status != nil {
 		user.Status = *params.Status
 	}
 	if err := data.GetDB().Create(&user).Error; err != nil {
+		fmt.Println(err, "--------------------------------")
 		return nil, err
 	}
 	return &user, nil

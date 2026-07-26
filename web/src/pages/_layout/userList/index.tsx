@@ -4,6 +4,8 @@ import { TableColumns } from './constant'
 import { FieldType } from './types'
 import { useUserList } from './hooks'
 import { UserListItemType } from './types'
+import { AddUserDrawer } from './-components/AddUser/AddUser'
+import { useUserListStore } from './store'
 
 export const Route = createFileRoute('/_layout/userList/')({
     component: RouteComponent,
@@ -11,6 +13,7 @@ export const Route = createFileRoute('/_layout/userList/')({
 
 function RouteComponent() {
     const { form, pagination, USER_NAME_LIST_OPTIONS, user_list_data, handleSearch } = useUserList()
+    const { setAddUserDrawerOpen } = useUserListStore()
 
     return (
         <Space orientation="vertical" size="medium" className="flex w-full">
@@ -43,6 +46,13 @@ function RouteComponent() {
             </Card>
             {/* <div className="my-12 bg-[#ccc]" /> */}
             <Card>
+                <Space orientation="vertical" size="medium" className="w-full mb-4">
+                    <Button type="primary" onClick={() => {
+                        setAddUserDrawerOpen(true)
+                    }}>
+                        添加账号
+                    </Button>
+                </Space>
                 <Table<UserListItemType>
                     bordered
                     columns={TableColumns}
@@ -62,6 +72,7 @@ function RouteComponent() {
                     }}
                 />
             </Card>
+            <AddUserDrawer />
         </Space>
     )
 }

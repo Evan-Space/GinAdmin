@@ -19,3 +19,10 @@ export const getUserNameListOptionsAPI = async () => {
 export const getUserListAPI = async (params: Partial<UserListFormType> & PaginationTypeQuery) => {
     return POST<{ list: UserListItemType[] } & PaginationTypeResponse>('/admin-user/list', params)
 }
+
+/**
+ * 新增用户
+*/
+export const createUserAPI = async (params: UserListFormType) => {
+    return POST('/admin-user/create', params)
+}

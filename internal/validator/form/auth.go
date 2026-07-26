@@ -15,8 +15,7 @@ type CreateAdminUser struct {
 	Username string `json:"username" binding:"required,min=2,max=30"`
 	Password string `json:"password" binding:"required,min=6,max=128"`
 	Nickname string `json:"nickname" binding:"required,min=1,max=30"`
-	Email    string `json:"email" binding:"omitempty,email,max=120"`
-	Phone    string `json:"phone_number" binding:"omitempty,max=15"`
+	Age      uint8  `json:"age" binding:"required,min=0,max=150"`
 	Status   *uint8 `json:"status" binding:"omitempty,oneof=0 1"`
 }
 
