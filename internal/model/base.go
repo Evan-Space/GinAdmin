@@ -10,8 +10,8 @@ import (
 // 对应 gin-layout internal/model/base.go BaseModel
 type BaseModel struct {
 	ID        uint      `json:"id" gorm:"column:id"`
-	CreatedAt time.Time `json:"created_at" gorm:"column:created_at"`
-	UpdatedAt time.Time `json:"updated_at" gorm:"column:updated_at"`
+	CreatedAt time.Time `json:"created_at" gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"column:updated_at";autoUpdateTime`
 }
 
 

@@ -4,7 +4,6 @@ import (
 	"GinAdmin/data"
 	"GinAdmin/internal/model"
 	"GinAdmin/internal/validator/form"
-	"fmt"
 
 	"gorm.io/gorm"
 
@@ -98,7 +97,6 @@ func (s *AdminUserService) Create(params *form.CreateAdminUser) (*model.AdminUse
 		user.Status = *params.Status
 	}
 	if err := data.GetDB().Create(&user).Error; err != nil {
-		fmt.Println(err, "--------------------------------")
 		return nil, err
 	}
 	return &user, nil
