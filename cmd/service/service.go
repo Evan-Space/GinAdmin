@@ -41,7 +41,6 @@ func init() {
 	registerFlags()
 }
 
-
 /**
 * 注册命令行参数
 **/
@@ -49,7 +48,6 @@ func registerFlags() {
 	ServeCmd.Flags().StringVarP(&host, "host", "H", defaultHost, "监听服务器地址")
 	ServeCmd.Flags().IntVarP(&port, "port", "P", defaultPort, "监听服务器端口")
 }
-
 
 /**
 * 启动服务器
@@ -64,6 +62,10 @@ func RunServer() error {
 	errChan := make(chan error, 1)
 	go func() {
 		fmt.Printf("API service listening on %s\n", address)
+		// http2 需要配证书和密钥
+		// if err := server.ListenAndServeTLS("cert.pem", "key.pem"); err != nil && err != http.ErrServerClosed {
+		// 	errChan <- err
+		// }
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			errChan <- err
 		}
@@ -80,7 +82,7 @@ func waitForShutdown(server *http.Server, errChan <-chan error) error {
 	select {
 	case err, ok := <-errChan:
 		if ok && err != nil {
-			
+
 			return err
 		}
 		return nil

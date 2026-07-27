@@ -14,9 +14,9 @@ export const useAddUser = () => {
     */
     const handleAddBtn = async () => {
         const values = await form.getFieldsValue(true)
-        const { code } = await createUserAPI(values)
+        const { code, msg } = await createUserAPI(values)
         if (code !== 0) {
-            messageApi.error('添加失败，请重试')
+            messageApi.error(msg || '添加失败，请重试')
             return
         }
         messageApi.success('添加成功')
