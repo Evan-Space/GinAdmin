@@ -5,9 +5,11 @@ import (
 	"GinAdmin/internal/model"
 	"GinAdmin/internal/validator/form"
 
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 
 	"GinAdmin/internal/pkg/errors"
+	stdErrors "errors"
 )
 
 type AdminUserService struct{}
@@ -97,7 +99,7 @@ func (s *AdminUserService) Create(params *form.CreateAdminUser) (*model.AdminUse
 		user.Status = *params.Status
 	}
 	if err := data.GetDB().Create(&user).Error; err != nil {
-		return nil, err
+		return nil, translateCreateUserErr(err)
 	}
 	return &user, nil
 }
@@ -211,4 +213,24 @@ func (ctl *AdminUserService) UserNameOptions() ([]map[string]any, error) {
 	}
 
 	return result, nil
+}
+
+/**
+* translateCreateUserErr 根据mysql 报错，返回给前端不用的文案提示。
+* @param: err error
+* @return: error
+ */
+func translateCreateUserErr(err error) error {
+	var mysqlCreateErr *mysql.MySQLError
+	if stdErrors.As(err, &mysqlCreateErr) {
+		switch mysqlCreateErr.Number {
+		case 1062:
+			return ErrUsernameExists
+		case 1452:
+			return ErrUserInUse
+		case 1048:
+			return errors.NewBusinessError(errors.InvalidParameter, "必填字段缺失")
+		}
+	}
+	return err
 }
