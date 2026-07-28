@@ -20,7 +20,7 @@ export const useAddUser = () => {
             return
         }
         messageApi.success('添加成功')
-        setAddUserDrawerOpen(false)
+        handleCloseDrawer()
     }
 
     /**
@@ -31,9 +31,18 @@ export const useAddUser = () => {
         setAddUserDrawerOpen(false)
     }
 
+    /**
+     * 关闭抽屉
+    */
+    const handleCloseDrawer = async () => {
+        await form.resetFields()
+        setAddUserDrawerOpen(false)
+    }
+
     return {
         form,
         handleCancelBtn, // 取消按钮
         handleAddBtn, // 添加按钮
+        handleCloseDrawer, // 关闭抽屉
     }
 }

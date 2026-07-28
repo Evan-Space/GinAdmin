@@ -5,15 +5,14 @@ import { AddUserDrawerFormRules } from './constants'
 
 export function AddUserDrawer() {
     const { addUserDrawerOpen, setAddUserDrawerOpen } = useUserListStore()
-    const { form, handleCancelBtn, handleAddBtn } = useAddUser()
+    const { form, handleCancelBtn, handleAddBtn, handleCloseDrawer } = useAddUser()
     return (
         <Drawer
             title="添加账号"
             open={addUserDrawerOpen}
             size={800}
-            onClose={() => {
-                form.resetFields()
-                setAddUserDrawerOpen(false)
+            onClose={async () => {
+                handleCloseDrawer()
             }}
         >
             <Space orientation="vertical" size="medium" className="relative flex w-full h-full ">

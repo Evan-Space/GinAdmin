@@ -225,9 +225,9 @@ func translateCreateUserErr(err error) error {
 	if stdErrors.As(err, &mysqlCreateErr) {
 		switch mysqlCreateErr.Number {
 		case 1062:
-			return ErrUsernameExists
+			return errors.ErrUsernameExists
 		case 1452:
-			return ErrUserInUse
+			return errors.ErrUserInUse
 		case 1048:
 			return errors.NewBusinessError(errors.InvalidParameter, "必填字段缺失")
 		}
