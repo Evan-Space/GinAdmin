@@ -4,7 +4,7 @@ import { useAddUser } from './hooks'
 import { AddUserDrawerFormRules } from './constants'
 
 export function AddUserDrawer() {
-    const { addUserDrawerOpen, setAddUserDrawerOpen } = useUserListStore()
+    const { addUserDrawerOpen } = useUserListStore()
     const { form, handleCancelBtn, handleAddBtn, handleCloseDrawer } = useAddUser()
     return (
         <Drawer
