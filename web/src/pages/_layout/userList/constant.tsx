@@ -1,5 +1,6 @@
 import { UserListItemType } from './types'
 import { ColumnsType } from 'antd/es/table'
+import { Tag } from 'antd'
 
 
 export const TableColumns: ColumnsType<UserListItemType> = [
@@ -39,5 +40,24 @@ export const TableColumns: ColumnsType<UserListItemType> = [
             return text ? text : '-'
         },
         width: 100,
+    },
+    {
+        title: 'status',
+        dataIndex: 'status',
+        width: 100,
+        render: (text: number) => {
+            return StatusContainer({ status: text })
+        },
+       
     }
 ]
+
+
+/**
+ * 账户状态标签展示
+*/
+export const StatusContainer = ({ status }: { status: number }) => {
+    return (
+        <Tag color={status === 1 ? 'green' : 'red'}>{status === 1 ? '启用' : '禁用'}</Tag>
+    )
+}
