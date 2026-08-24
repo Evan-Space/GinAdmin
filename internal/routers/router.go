@@ -11,7 +11,7 @@ import (
 
 // SetRouters 创建引擎并注册所有路由
 func SetRouters() *gin.Engine {
-	engine := gin.Default()
+	engine := gin.Default() // 创建一个默认的gin引擎
 	engine.Use(middleware.CustomRecovery())
 	engine.Use(middleware.RequestMeta())
 	engine.Use(middleware.ParseToken())
