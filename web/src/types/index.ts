@@ -3,7 +3,7 @@
  */
 export interface OPTIONS_ENUM_TYPE {
     label: string
-    value: string
+    value: string | number
 }
 
 /**

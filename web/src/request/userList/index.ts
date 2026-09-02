@@ -1,7 +1,8 @@
 import { GET, POST } from '@src/request/request'
 import { OPTIONS_ENUM_TYPE, PaginationTypeQuery, PaginationTypeResponse } from '@src/types'
-import { UserListItemType} from '@src/pages/_layout/userList/types'
-import { FieldType as UserListFormType } from '@src/pages/_layout/userList/types'
+import { UserListItemType } from '@src/pages/_layout/userList/adminList/types'
+import { FieldType as UserListFormType } from '@src/pages/_layout/userList/adminList/types'
+import { FieldType as MemberListFormType } from '@src/pages/_layout/userList/memberList/types'
 
 
 
@@ -25,4 +26,11 @@ export const getUserListAPI = async (params: Partial<UserListFormType> & Paginat
 */
 export const createUserAPI = async (params: UserListFormType) => {
     return POST('/admin-user/create', params)
+}
+
+/**
+ * 获取普通成员用户名枚举值
+*/
+export const getMemberUserNameListOptionsAPI = async () => {
+    return GET<OPTIONS_ENUM_TYPE[]>('/admin-user/memberListName')
 }

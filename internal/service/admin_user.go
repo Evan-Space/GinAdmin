@@ -234,3 +234,29 @@ func translateCreateUserErr(err error) error {
 	}
 	return err
 }
+
+/*
+获取普通成员名字枚举值
+*/
+func (s *AdminUserService) MemberListName() ([]map[string]any, error) {
+	var users []model.AdminUser
+
+	if err := data.GetDB(). // 获取数据库连接
+				Model(&model.AdminUser{}).                      // 指定查的是 admin_user 表
+				Select("id, nickname").                         // 只查 id 和 nickname 字段
+				Where("deleted_at = 0 AND is_super_admin = 0"). // 过滤条件，只查普通成员
+				Find(&users).                                   // 执行查询，并把结果赋值给 users 变量
+				Error; err != nil {                             // 错误处理，如果查询失败，返回错误信息
+		return nil, errors.NewBusinessError(errors.ServerErr, "error fetching member list name: %s")
+	}
+
+	result := make([]map[string]any, 0, len(users))
+
+	for _, u := range users {
+		result = append(result, map[string]any{
+			"label": u.Nickname,
+			"value": u.ID,
+		})
+	}
+	return result, nil
+}

@@ -63,22 +63,6 @@ func (ctl *AdminUserController) UpdateProfile(c *gin.Context) {
 	ctl.Success(c, nil)
 }
 
-// List 用户列表
-func (ctl *AdminUserController) List(c *gin.Context) {
-	params := &form.AdminUserList{
-		Paginate: form.Paginate{CurrentPage: 1, PageSize: 10},
-	}
-	if err := validator.CheckPostParams(c, params); err != nil {
-		return
-	}
-	result, err := ctl.svc.List(params)
-	if err != nil {
-		ctl.Err(c, err)
-		return
-	}
-	ctl.Success(c, result)
-}
-
 // Detail 用户详情
 func (ctl *AdminUserController) Detail(c *gin.Context) {
 	query := form.NewIdForm()
@@ -151,6 +135,32 @@ func (ctl *AdminUserController) BindRole(c *gin.Context) {
 // UserNameOptions 用户名称枚举值
 func (ctl *AdminUserController) UserNameOptions(c *gin.Context) {
 	result, err := ctl.svc.UserNameOptions()
+	if err != nil {
+		ctl.Err(c, err)
+		return
+	}
+	ctl.Success(c, result)
+}
+
+// List 用户列表
+func (ctl *AdminUserController) List(c *gin.Context) {
+	params := &form.AdminUserList{
+		Paginate: form.Paginate{CurrentPage: 1, PageSize: 10},
+	}
+	if err := validator.CheckPostParams(c, params); err != nil {
+		return
+	}
+	result, err := ctl.svc.List(params)
+	if err != nil {
+		ctl.Err(c, err)
+		return
+	}
+	ctl.Success(c, result)
+}
+
+// MemberListName 普通成员名字枚举值
+func (ctl *AdminUserController) MemberListName(c *gin.Context) {
+	result, err := ctl.svc.MemberListName()
 	if err != nil {
 		ctl.Err(c, err)
 		return
