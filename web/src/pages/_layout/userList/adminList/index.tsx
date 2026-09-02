@@ -7,7 +7,7 @@ import { UserListItemType } from './types'
 import { AddUserDrawer } from './-components/AddUser/AddUser'
 import { useUserListStore } from './store'
 
-export const Route = createFileRoute('/_layout/userList/')({
+export const Route = createFileRoute('/_layout/userList/adminList/')({
     component: RouteComponent,
 })
 
