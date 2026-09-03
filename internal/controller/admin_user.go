@@ -160,10 +160,28 @@ func (ctl *AdminUserController) List(c *gin.Context) {
 
 // MemberListName 普通成员名字枚举值
 func (ctl *AdminUserController) MemberListName(c *gin.Context) {
-	result, err := ctl.svc.MemberListName()
+	result, err := ctl.svc.MemberNameOptions()
 	if err != nil {
 		ctl.Err(c, err)
 		return
 	}
 	ctl.Success(c, result)
+}
+
+// MemberList 普通成员列表
+func (ctl *AdminUserController) MemberList(c *gin.Context) {
+	params := &form.AdminUserList{
+		Paginate: form.Paginate{CurrentPage: 1, PageSize: 10},
+	}
+	if err := validator.CheckPostParams(c, params); err != nil {
+		return
+	}
+
+	result, err := ctl.svc.MemberList(params)
+	if err != nil {
+		ctl.Err(c, err)
+		return
+	}
+	ctl.Success(c, result)
+
 }

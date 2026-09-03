@@ -44,7 +44,7 @@ func (s *AdminUserService) List(params *form.AdminUserList) (map[string]interfac
 	var users []model.AdminUser
 	var total int64
 
-	query := data.GetDB().Model(&model.AdminUser{}).Where("deleted_at = 0")
+	query := data.GetDB().Model(&model.AdminUser{}).Where("deleted_at = 0 AND is_super_admin = 1")
 
 	if params.Username != "" {
 		// query = query.Where("username = LIKE", "%"+params.Username+"%")
@@ -198,7 +198,7 @@ func (ctl *AdminUserService) UserNameOptions() ([]map[string]any, error) {
 	if err := data.GetDB().
 		Model(&model.AdminUser{}).
 		Select("id, nickname").
-		Where("deleted_at = 0").
+		Where("deleted_at = 0 AND is_super_admin = 1").
 		Find(&users).Error; err != nil {
 		return nil, errors.NewBusinessError(errors.ServerErr, "error fetching user name options: %s")
 	}
@@ -238,7 +238,7 @@ func translateCreateUserErr(err error) error {
 /*
 获取普通成员名字枚举值
 */
-func (s *AdminUserService) MemberListName() ([]map[string]any, error) {
+func (s *AdminUserService) MemberNameOptions() ([]map[string]any, error) {
 	var users []model.AdminUser
 
 	if err := data.GetDB(). // 获取数据库连接
@@ -259,4 +259,52 @@ func (s *AdminUserService) MemberListName() ([]map[string]any, error) {
 		})
 	}
 	return result, nil
+}
+
+// 获取普通成员列表
+func (s *AdminUserService) MemberList(params *form.AdminUserList) (map[string]interface{}, error) {
+	var users []model.AdminUser
+	var total int64
+
+	query := data.GetDB().
+		Model(&model.AdminUser{}).
+		Where("deleted_at = 0 AND is_super_admin = 0")
+
+	if params.Username != "" {
+		query = query.Where("username LIKE ?", "%"+params.Username+"%")
+	}
+
+	if params.Nickname != "" {
+		query = query.Where("nickname = ?", params.Nickname)
+	}
+
+	if params.Status != nil {
+		query = query.Where("status = ?", *params.Status)
+	}
+
+	if params.Email != "" {
+		query = query.Where("email = ?", params.Email)
+	}
+
+	if params.Age != "" {
+		query = query.Where("age = ?", params.Age)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, err
+	}
+
+	// 分页
+	offset := (params.CurrentPage - 1) * params.PageSize
+	if err := query.Order("id ASC").Offset(offset).Limit(params.PageSize).Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"list":        users,
+		"total":       total,
+		"currentPage": params.CurrentPage,
+		"pageSize":    params.PageSize,
+	}, nil
+
 }

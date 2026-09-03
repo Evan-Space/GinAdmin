@@ -28,11 +28,11 @@ export const useUserList = () => {
         }))
     }
 
+    const { data: USER_NAME_LIST_OPTIONS = [] } = useRequest(handleGetUserNameListOptions)
+
     /**
      * 获取用户列表
      */
-    const { data: USER_NAME_LIST_OPTIONS = [] } = useRequest(handleGetUserNameListOptions)
-
     const { data: { data: { list: user_list_data = [] } = {} } = {}, run: runGetUserList } = useRequest(getUserListAPI, {
         defaultParams: [{ currentPage: 1, pageSize: 10 }],
         onSuccess: (res) => {

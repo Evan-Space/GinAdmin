@@ -86,8 +86,9 @@ func AdminRouteTree() RouteGroupDef {
 						Prefix: "admin-user",
 						Routes: []RouteDef{
 							GET("userNameOptions", "用户名称枚举值", AuthPerm, adminUserCtrl.UserNameOptions),
-							POST("list", "用户列表", AuthPerm, adminUserCtrl.List),
+							POST("adminList", "管理员列表", AuthPerm, adminUserCtrl.List),
 							GET("memberListName", "普通成员名字枚举值", AuthPerm, adminUserCtrl.MemberListName),
+							POST("memberList", "普通成员列表", AuthPerm, adminUserCtrl.MemberList),
 							GET("detail", "用户详情", AuthPerm, adminUserCtrl.Detail),
 							POST("create", "新增用户", AuthPerm, adminUserCtrl.Create),
 							POST("update", "更新用户", AuthPerm, adminUserCtrl.Update),
