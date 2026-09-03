@@ -41,3 +41,10 @@ export const getMemberUserNameListOptionsAPI = async () => {
 export const getMemberListAPI = async (params: Partial<MemberListFormType> & PaginationTypeQuery) => {
     return POST<{list: MemberListItemType[] } & PaginationTypeResponse>('/admin-user/memberList', params)
 }
+
+/**
+ * 删除账号
+*/
+export const deleteAccountAPI = async (params: { id: number, type: '0' | '1' }) => {
+    return POST('/admin-user/deleteAccount', params)
+}

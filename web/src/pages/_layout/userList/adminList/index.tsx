@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Table, Form, Select, Input, Space, Button, Card } from 'antd'
-import { TableColumns } from './constant'
+import { getTableColumns } from './constant'
 import { FieldType } from './types'
 import { useUserList } from './hooks'
 import { UserListItemType } from './types'
@@ -12,7 +12,7 @@ export const Route = createFileRoute('/_layout/userList/adminList/')({
 })
 
 function RouteComponent() {
-    const { form, pagination, USER_NAME_LIST_OPTIONS, user_list_data, handleSearch } = useUserList()
+    const { form, pagination, USER_NAME_LIST_OPTIONS, user_list_data, handleSearch, handleDeleteAccount } = useUserList()
     const { setAddUserDrawerOpen } = useUserListStore()
 
     return (
@@ -55,7 +55,7 @@ function RouteComponent() {
                 </Space>
                 <Table<UserListItemType>
                     bordered
-                    columns={TableColumns}
+                    columns={getTableColumns(handleDeleteAccount)}
                     dataSource={user_list_data}
                     rowKey="id"
                     pagination={{

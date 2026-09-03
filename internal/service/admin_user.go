@@ -171,7 +171,7 @@ func (s *AdminUserService) Delete(id uint) error {
 	return data.GetDB().
 		Model(&model.AdminUser{}).
 		Where("id = ? AND deleted_at = 0", id).
-		Update("deleted_at", gorm.Expr("UNIX_TIMESTAMP()")).Error
+		Update("deleted_at", gorm.Expr("UNIX_TIMESTAMP()")).Error // 设置删除时间，软删除数据
 }
 
 // BindRole 为用户绑定角色（全量替换）

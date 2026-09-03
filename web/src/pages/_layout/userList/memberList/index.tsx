@@ -2,14 +2,14 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Card, Space, Form, Select, InputNumber, Button, Table } from 'antd'
 import { useMemberList } from './hooks'
 import { FieldType, MemberListItemType } from './types'
-import { ACCOUNT_STATUS, TableColumns } from './constants'
+import { ACCOUNT_STATUS, getTableColumns } from './constants'
 
 export const Route = createFileRoute('/_layout/userList/memberList/')({
     component: RouteComponent,
 })
 
 function RouteComponent() {
-    const { form, USER_NAME_LIST_OPTIONS, handleSearch, member_list_data, pagination } = useMemberList()
+    const { form, USER_NAME_LIST_OPTIONS, handleSearch, member_list_data, pagination, handleDeleteAccount } = useMemberList()
 
     return (
         <Space orientation="vertical" size="medium" className="flex w-full">
@@ -49,7 +49,7 @@ function RouteComponent() {
 
                     <Table<MemberListItemType>
                         bordered
-                        columns={TableColumns}
+                        columns={getTableColumns(handleDeleteAccount)}
                         dataSource={member_list_data}
                         rowKey="id"
                         pagination={{

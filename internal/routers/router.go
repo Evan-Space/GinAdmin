@@ -92,7 +92,7 @@ func AdminRouteTree() RouteGroupDef {
 							GET("detail", "用户详情", AuthPerm, adminUserCtrl.Detail),
 							POST("create", "新增用户", AuthPerm, adminUserCtrl.Create),
 							POST("update", "更新用户", AuthPerm, adminUserCtrl.Update),
-							POST("delete", "删除用户", AuthPerm, adminUserCtrl.Delete),
+							POST("deleteAccount", "删除用户", AuthPerm, adminUserCtrl.Delete),
 							POST("bind-role", "绑定角色", AuthPerm, adminUserCtrl.BindRole),
 						},
 					},

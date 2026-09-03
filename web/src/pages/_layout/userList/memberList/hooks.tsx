@@ -6,6 +6,7 @@ import { useRequest } from 'ahooks'
 import { FieldType } from './types'
 import { PaginationTypeResponse, PaginationTypeQuery } from '@src/types'
 import { omitEmptyValues } from '@src/utils/utils'
+import { deleteAccountAPI } from '@src/request/userList'
 
 export const useMemberList = () => {
     const [form] = useForm()
@@ -31,18 +32,17 @@ export const useMemberList = () => {
 
     const { data: USER_NAME_LIST_OPTIONS = [] } = useRequest(handleGetUserNameListOptions)
 
-    const { run: runGetMemberList, data: { data: { list: member_list_data = [] } = {} } = {} } = useRequest(getMemberListAPI, {
-        defaultParams: [{ currentPage: 1, pageSize: 10 }],
-        onSuccess: (res) => {
-            setPagination({
-                currentPage: res.data.currentPage,
-                pageSize: res.data.pageSize,
-                total: res.data.total,
-            })
-        }
-    })
-
-
+    const { run: runGetMemberList, data: { data: { list: member_list_data = [] } = {} } = {} } =
+        useRequest(getMemberListAPI, {
+            defaultParams: [{ currentPage: 1, pageSize: 10 }],
+            onSuccess: (res) => {
+                setPagination({
+                    currentPage: res.data.currentPage,
+                    pageSize: res.data.pageSize,
+                    total: res.data.total,
+                })
+            },
+        })
 
     // 获取成员列表,搜索方法
     const handleSearch = async (params: Partial<FieldType> & PaginationTypeQuery) => {
@@ -55,11 +55,25 @@ export const useMemberList = () => {
         runGetMemberList(paramsObj)
     }
 
+    /**
+     * 删除用户
+     */
+    const handleDeleteAccount = async (params: { id: number }) => {
+        const res = await deleteAccountAPI({
+            id: params.id,
+            type: '0',
+        })
+        if (res.code !== 0) {
+            throw new Error(res.msg)
+        }
+        runGetMemberList({ currentPage: 1, pageSize: 10 })
+    }
     return {
         form,
         USER_NAME_LIST_OPTIONS,
         handleSearch,
         member_list_data,
-        pagination
+        pagination,
+        handleDeleteAccount,
     }
 }

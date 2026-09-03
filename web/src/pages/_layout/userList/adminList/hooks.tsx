@@ -6,6 +6,7 @@ import { useForm } from 'antd/es/form/Form'
 import { FieldType } from './types'
 import { useRequest } from 'ahooks'
 import { omitEmptyValues } from '@src/utils/utils'
+import { deleteAccountAPI } from '@src/request/userList'
 
 export const useUserList = () => {
     const [form] = useForm<FieldType>()
@@ -14,6 +15,7 @@ export const useUserList = () => {
         pageSize: 10,
         total: 0,
     })
+
     /**
      * 获取用户名称枚举值
      */
@@ -33,16 +35,17 @@ export const useUserList = () => {
     /**
      * 获取用户列表
      */
-    const { data: { data: { list: user_list_data = [] } = {} } = {}, run: runGetUserList } = useRequest(getUserListAPI, {
-        defaultParams: [{ currentPage: 1, pageSize: 10 }],
-        onSuccess: (res) => {
-            setPagination({
-                currentPage: res.data.currentPage,
-                pageSize: res.data.pageSize,
-                total: res.data.total,
-            })
-        },
-    })
+    const { data: { data: { list: user_list_data = [] } = {} } = {}, run: runGetUserList } =
+        useRequest(getUserListAPI, {
+            defaultParams: [{ currentPage: 1, pageSize: 10 }],
+            onSuccess: (res) => {
+                setPagination({
+                    currentPage: res.data.currentPage,
+                    pageSize: res.data.pageSize,
+                    total: res.data.total,
+                })
+            },
+        })
 
     /**
      * 搜索
@@ -58,11 +61,26 @@ export const useUserList = () => {
         runGetUserList(apiParams)
     }
 
+    /**
+     * 删除用户
+     */
+    const handleDeleteAccount = async (params: { id: number }) => {
+        const res = await deleteAccountAPI({
+            id: params.id,
+            type: "1"
+        })
+        if (res.code !== 0) {
+            throw new Error(res.msg)
+        }
+        runGetUserList({ currentPage: 1, pageSize: 10 })
+    }
+
     return {
         form,
         pagination,
         USER_NAME_LIST_OPTIONS,
         user_list_data,
         handleSearch,
+        handleDeleteAccount
     }
 }
