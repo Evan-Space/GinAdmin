@@ -1,7 +1,7 @@
 import { OPTIONS_ENUM_TYPE } from '@src/types'
 import { MemberListItemType } from './types'
 import { ColumnsType } from 'antd/es/table'
-import { Space, Button } from 'antd'
+import { Space, Button, Modal } from 'antd'
 
 export const ACCOUNT_STATUS: OPTIONS_ENUM_TYPE[] = [
     {
@@ -48,14 +48,18 @@ export const getTableColumns = (
                 return (
                     <Space>
                     <Button type="text" danger onClick={() => {
-                        console.log('record', record)
-                        handleDeleteAccount({
-                            id: record.id,
-                            type: '0', // 0: 普通成员
-                            })
-                        }}>
-                        删除</Button>
-                        
+                        Modal.confirm({
+                            title: "确认删除",
+                            content: `确定要删除账号 "${record.nickname}" 吗？此操作不可恢复。`,
+                            onOk: () => {
+                                handleDeleteAccount({
+                                    id: record.id,
+                                    type: '0', // 0: 普通成员
+                                })
+                            }
+                        })
+                    }}>
+                       删除</Button>
                     </Space>
                 )
             }

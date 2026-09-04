@@ -1,7 +1,7 @@
 import { UserListItemType } from './types'
 import { ColumnsType } from 'antd/es/table'
 import { Tag } from 'antd'
-import { Space, Button } from 'antd'
+import { Space, Button, Modal } from 'antd'
 
 export const getTableColumns = (
     handleDeleteAccount: (params: { id: number; type: '0' | '1' }) => void
@@ -60,9 +60,15 @@ export const getTableColumns = (
                 return (
                     <Space>
                         <Button type="text" danger onClick={() => {
-                            handleDeleteAccount({
-                                id: Number(record.id),
-                                type: '1', // 1: admin 0: 普通成员
+                            Modal.confirm({
+                                title: "确认删除",
+                                content: `确定要删除账号 "${record.name}" 吗？此操作不可恢复。`,
+                                onOk: () => {
+                                    handleDeleteAccount({
+                                        id: Number(record.id),
+                                        type: '1', // 1: admin 0: 普通成员
+                                    })
+                                }
                             })
                         }}>删除</Button>
                     </Space>
