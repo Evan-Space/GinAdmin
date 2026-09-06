@@ -9,7 +9,15 @@ export const Route = createFileRoute('/_layout/userList/memberList/')({
 })
 
 function RouteComponent() {
-    const { form, USER_NAME_LIST_OPTIONS, handleSearch, member_list_data, pagination, handleDeleteAccount } = useMemberList()
+    const {
+        form,
+        USER_NAME_LIST_OPTIONS,
+        handleSearch,
+        member_list_data,
+        pagination,
+        handleDeleteAccount,
+        handleChangeStatus,
+    } = useMemberList()
 
     return (
         <Space orientation="vertical" size="medium" className="flex w-full">
@@ -32,7 +40,12 @@ function RouteComponent() {
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" onClick={() => handleSearch({ currentPage: 1, pageSize: 10 })}>搜索</Button>
+                        <Button
+                            type="primary"
+                            onClick={() => handleSearch({ currentPage: 1, pageSize: 10 })}
+                        >
+                            搜索
+                        </Button>
                     </Form.Item>
                 </Form>
             </Card>
@@ -49,7 +62,7 @@ function RouteComponent() {
 
                     <Table<MemberListItemType>
                         bordered
-                        columns={getTableColumns(handleDeleteAccount)}
+                        columns={getTableColumns(handleDeleteAccount, handleChangeStatus)}
                         dataSource={member_list_data}
                         rowKey="id"
                         pagination={{
@@ -64,7 +77,7 @@ function RouteComponent() {
                                 })
                             },
                         }}
-                        />
+                    />
                 </Space>
             </Card>
         </Space>

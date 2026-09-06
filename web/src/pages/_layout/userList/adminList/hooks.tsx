@@ -7,6 +7,8 @@ import { FieldType } from './types'
 import { useRequest } from 'ahooks'
 import { omitEmptyValues } from '@src/utils/utils'
 import { deleteAccountAPI } from '@src/request/userList'
+import { changeAccountStatusAPI } from '@src/request/userList'
+import { message } from 'antd'
 
 export const useUserList = () => {
     const [form] = useForm<FieldType>()
@@ -67,11 +69,26 @@ export const useUserList = () => {
     const handleDeleteAccount = async (params: { id: number }) => {
         const res = await deleteAccountAPI({
             id: params.id,
-            type: "1"
+            type: '1',
         })
         if (res.code !== 0) {
             throw new Error(res.msg)
         }
+        runGetUserList({ currentPage: 1, pageSize: 10 })
+    }
+
+    /**
+     * 修改账号状态
+     */
+    const handleChangeStatus = async (id: number) => {
+        const res = await changeAccountStatusAPI({
+            id,
+            type: '1',
+        })
+        if (res.code !== 0) {
+            throw new Error(res.msg)
+        }
+        message.success('修改账号状态成功')
         runGetUserList({ currentPage: 1, pageSize: 10 })
     }
 
@@ -81,6 +98,7 @@ export const useUserList = () => {
         USER_NAME_LIST_OPTIONS,
         user_list_data,
         handleSearch,
-        handleDeleteAccount
+        handleDeleteAccount,
+        handleChangeStatus,
     }
 }

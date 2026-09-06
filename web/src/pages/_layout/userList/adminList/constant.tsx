@@ -4,7 +4,8 @@ import { Tag } from 'antd'
 import { Space, Button, Modal } from 'antd'
 
 export const getTableColumns = (
-    handleDeleteAccount: (params: { id: number; type: '0' | '1' }) => void
+    handleDeleteAccount: (params: { id: number; type: '0' | '1' }) => void,
+    handleChangeStatus: (id: number) => void,
 ): ColumnsType<UserListItemType> => {
     return [
         {
@@ -49,42 +50,51 @@ export const getTableColumns = (
             dataIndex: 'status',
             width: 100,
             render: (text: number) => {
-                return StatusContainer({ status: text })
+                return (
+                    <Tag color={text === 1 ? 'green' : 'red'}>{text === 1 ? '启用' : '禁用'}</Tag>
+                )
             },
         },
         {
-            title: "操作",
-            dataIndex: "action",
+            title: '操作',
+            dataIndex: 'action',
             width: 120,
             render: (_: any, record: UserListItemType) => {
                 return (
                     <Space>
-                        <Button type="text" danger onClick={() => {
-                            Modal.confirm({
-                                title: "确认删除",
-                                content: `确定要删除账号 "${record.name}" 吗？此操作不可恢复。`,
-                                onOk: () => {
-                                    handleDeleteAccount({
-                                        id: Number(record.id),
-                                        type: '1', // 1: admin 0: 普通成员
-                                    })
-                                }
-                            })
-                        }}>删除</Button>
+                        <Button
+                            type="text"
+                            danger
+                            onClick={() => {
+                                Modal.confirm({
+                                    title: '确认删除',
+                                    content: `确定要删除账号 "${record.name}" 吗？此操作不可恢复。`,
+                                    onOk: () => {
+                                        handleDeleteAccount({
+                                            id: Number(record.id),
+                                            type: '1', // 1: admin 0: 普通成员
+                                        })
+                                    },
+                                })
+                            }}
+                        >
+                            删除
+                        </Button>
+
+                        <Button
+                            color="purple"
+                            variant="text"
+                            onClick={() => {
+                                handleChangeStatus(Number(record.id))
+                            }}
+                        >
+                            {record.status === 1 ? '禁用' : '启用'}
+                        </Button>
+
+                        
                     </Space>
                 )
-            }
-        }
+            },
+        },
     ]
-}
-
-
-
-/**
- * 账户状态标签展示
-*/
-export const StatusContainer = ({ status }: { status: number }) => {
-    return (
-        <Tag color={status === 1 ? 'green' : 'red'}>{status === 1 ? '启用' : '禁用'}</Tag>
-    )
 }

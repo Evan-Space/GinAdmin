@@ -1,7 +1,7 @@
 import { OPTIONS_ENUM_TYPE } from '@src/types'
 import { MemberListItemType } from './types'
 import { ColumnsType } from 'antd/es/table'
-import { Space, Button, Modal } from 'antd'
+import { Space, Button, Modal, Tag } from 'antd'
 
 export const ACCOUNT_STATUS: OPTIONS_ENUM_TYPE[] = [
     {
@@ -14,9 +14,9 @@ export const ACCOUNT_STATUS: OPTIONS_ENUM_TYPE[] = [
     },
 ]
 
-
 export const getTableColumns = (
-    handleDeleteAccount: (params: { id: number; type: '0' | '1' }) => void
+    handleDeleteAccount: (params: { id: number; type: '0' | '1' }) => void,
+    handleChangeStatus: (id: number) => void,
 ): ColumnsType<MemberListItemType> => {
     return [
         {
@@ -29,7 +29,7 @@ export const getTableColumns = (
             dataIndex: 'nickname',
             width: 100,
         },
-        
+
         {
             title: 'age',
             dataIndex: 'age',
@@ -39,30 +39,48 @@ export const getTableColumns = (
             title: 'status',
             dataIndex: 'status',
             width: 100,
+            render: (text: number) => {
+                return <Tag color={text === 1 ? 'green' : 'red'}>{text === 1 ? '启用' : '禁用'}</Tag>
+            }
         },
         {
-            title: "操作",
-            dataIndex: "action",
+            title: '操作',
+            dataIndex: 'action',
             width: 100,
             render: (_: any, record: MemberListItemType) => {
                 return (
                     <Space>
-                    <Button type="text" danger onClick={() => {
-                        Modal.confirm({
-                            title: "确认删除",
-                            content: `确定要删除账号 "${record.nickname}" 吗？此操作不可恢复。`,
-                            onOk: () => {
-                                handleDeleteAccount({
-                                    id: record.id,
-                                    type: '0', // 0: 普通成员
+                        <Button
+                            type="text"
+                            danger
+                            onClick={() => {
+                                Modal.confirm({
+                                    title: '确认删除',
+                                    content: `确定要删除账号 "${record.nickname}" 吗？此操作不可恢复。`,
+                                    onOk: () => {
+                                        handleDeleteAccount({
+                                            id: record.id,
+                                            type: '0', // 0: 普通成员
+                                        })
+                                    },
                                 })
-                            }
-                        })
-                    }}>
-                       删除</Button>
+                            }}
+                        >
+                            删除
+                        </Button>
+
+                        <Button
+                            color="purple"
+                            variant="text"
+                            onClick={() => {
+                                handleChangeStatus(Number(record.id))
+                            }}
+                        >
+                            {record.status === 1 ? '禁用' : '启用'}
+                        </Button>
                     </Space>
                 )
-            }
-        }
+            },
+        },
     ]
 }

@@ -9,4 +9,5 @@ export interface UserListItemType {
     name: string
     age: number
     address: string
+    status: number
 }

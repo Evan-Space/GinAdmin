@@ -48,3 +48,10 @@ export const getMemberListAPI = async (params: Partial<MemberListFormType> & Pag
 export const deleteAccountAPI = async (params: { id: number, type: '0' | '1' }) => {
     return POST('/admin-user/deleteAccount', params)
 }
+
+/**
+ * 修改账号状态
+*/
+export const changeAccountStatusAPI = async (params: { id: number, type: '0' | '1' }) => {
+    return POST('/admin-user/changeAccountStatus', params)
+}

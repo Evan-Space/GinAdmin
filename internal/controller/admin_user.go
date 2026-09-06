@@ -185,3 +185,16 @@ func (ctl *AdminUserController) MemberList(c *gin.Context) {
 	ctl.Success(c, result)
 
 }
+
+// ChangeAccountStatus 修改账号状态
+func (ctl *AdminUserController) ChangeAccountStatus(c *gin.Context) {
+	params := form.NewIdForm()
+	if err := validator.CheckPostParams(c, params); err != nil {
+		return
+	}
+	if err := ctl.svc.ChangeAccountStatus(params.ID); err != nil {
+		ctl.Err(c, err)
+		return
+	}
+	ctl.Success(c, nil)
+}

@@ -308,3 +308,12 @@ func (s *AdminUserService) MemberList(params *form.AdminUserList) (map[string]in
 	}, nil
 
 }
+
+
+// ChangeAccountStatus 修改账号状态
+func (s *AdminUserService) ChangeAccountStatus(id uint) error {
+	return data.GetDB().
+		Model(&model.AdminUser{}).
+		Where("id = ? AND deleted_at = 0", id).
+		Update("status", gorm.Expr("1 - status")).Error // 设置删除时间，软删除数据
+}

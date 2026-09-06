@@ -12,7 +12,15 @@ export const Route = createFileRoute('/_layout/userList/adminList/')({
 })
 
 function RouteComponent() {
-    const { form, pagination, USER_NAME_LIST_OPTIONS, user_list_data, handleSearch, handleDeleteAccount } = useUserList()
+    const {
+        form,
+        pagination,
+        USER_NAME_LIST_OPTIONS,
+        user_list_data,
+        handleSearch,
+        handleDeleteAccount,
+        handleChangeStatus,
+    } = useUserList()
     const { setAddUserDrawerOpen } = useUserListStore()
 
     return (
@@ -47,15 +55,18 @@ function RouteComponent() {
             {/* <div className="my-12 bg-[#ccc]" /> */}
             <Card>
                 <Space orientation="vertical" size="medium" className="w-full mb-4">
-                    <Button type="primary" onClick={() => {
-                        setAddUserDrawerOpen(true)
-                    }}>
+                    <Button
+                        type="primary"
+                        onClick={() => {
+                            setAddUserDrawerOpen(true)
+                        }}
+                    >
                         添加账号
                     </Button>
                 </Space>
                 <Table<UserListItemType>
                     bordered
-                    columns={getTableColumns(handleDeleteAccount)}
+                    columns={getTableColumns(handleDeleteAccount, handleChangeStatus)}
                     dataSource={user_list_data}
                     rowKey="id"
                     pagination={{

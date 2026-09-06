@@ -7,6 +7,8 @@ import { FieldType } from './types'
 import { PaginationTypeResponse, PaginationTypeQuery } from '@src/types'
 import { omitEmptyValues } from '@src/utils/utils'
 import { deleteAccountAPI } from '@src/request/userList'
+import { changeAccountStatusAPI } from '@src/request/userList'
+import { message } from 'antd'
 
 export const useMemberList = () => {
     const [form] = useForm()
@@ -68,6 +70,22 @@ export const useMemberList = () => {
         }
         runGetMemberList({ currentPage: 1, pageSize: 10 })
     }
+
+
+    /**
+     * 修改账号状态
+     */
+    const handleChangeStatus = async (id: number) => {
+        const res = await changeAccountStatusAPI({
+            id,
+            type: '0',
+        })
+        if (res.code !== 0) {
+            throw new Error(res.msg)
+        }
+        message.success('修改账号状态成功')
+        runGetMemberList({ currentPage: 1, pageSize: 10 })
+    }
     return {
         form,
         USER_NAME_LIST_OPTIONS,
@@ -75,5 +93,6 @@ export const useMemberList = () => {
         member_list_data,
         pagination,
         handleDeleteAccount,
+        handleChangeStatus,
     }
 }
