@@ -56,6 +56,11 @@ var rootCmd = &cobra.Command{
 		}
 
 		/**
+		* 初始化断点续传遗留的临时分片回收
+		 */
+		bootstrapx.InitializeUploadClear()
+
+		/**
 		* 初始化数据库
 		 */
 		err := data.Initialize()

@@ -33,7 +33,7 @@ tanstackRouter({
 - `__root.tsx` 是根级 wrapper。
 - `_layout.tsx` 是后台管理布局路由。
 - `_layout/*` 包含登录后的后台页面。
-- `login/index.tsx` 位于后台布局之外。
+- `login/index.ts` 位于后台布局之外。
 
 ## 新增后台页面
 
@@ -42,7 +42,7 @@ tanstackRouter({
 1. 创建路由文件：
 
 ```text
-src/pages/_layout/role/index.tsx
+src/pages/_layout/role/index.ts
 ```
 
 2. 定义路由：

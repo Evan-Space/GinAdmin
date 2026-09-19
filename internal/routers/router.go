@@ -46,6 +46,7 @@ func AdminRouteTree() RouteGroupDef {
 	deptCtrl := controller.NewDeptController()
 	dashboardCtrl := controller.NewDashboardController()
 	authCtrl := controller.NewAuthController()
+	uploadCtrl := controller.NewUploadController() // 上传文件
 
 	return RouteGroupDef{
 		Prefix: "api/v1",
@@ -128,6 +129,16 @@ func AdminRouteTree() RouteGroupDef {
 							POST("update", "更新部门", AuthPerm, deptCtrl.Update),
 							POST("delete", "删除部门", AuthPerm, deptCtrl.Delete),
 							POST("bind-role", "部门绑定角色", AuthPerm, deptCtrl.BindRole),
+						},
+					},
+					{
+						Prefix: "upload",
+						Routes: []RouteDef{
+							POST("init", "初始化上传", AuthLogin, uploadCtrl.Init),
+							GET("status", "上传状态", AuthLogin, uploadCtrl.Status),
+							POST("chunk", "上传文件分片", AuthLogin, uploadCtrl.Chunk),
+							POST("complete", "合并分片", AuthLogin, uploadCtrl.Complete),
+							POST("abort", "取消上传", AuthLogin, uploadCtrl.Abort),
 						},
 					},
 				},

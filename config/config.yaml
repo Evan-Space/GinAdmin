@@ -30,3 +30,11 @@ logger:
     max_backups: 15
     max_age: 15
     compress: false
+
+
+storage:
+  root_dir: "storage/uploads"
+  chunk_size: 5242880
+  max_file_size: 10737418240
+  allow_ext: []
+  tmp_ttl: "24h"

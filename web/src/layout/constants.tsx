@@ -20,4 +20,5 @@ export const MENU_LIST: MenuProps['items'] = [
     },
     { key: '/task', label: '任务中心', icon: <UserOutlined /> },
     { key: '/setting', label: '系统管理', icon: <UserOutlined /> },
+    { key: '/testDemo', label: '测试页面', icon: <UserOutlined /> }
 ]

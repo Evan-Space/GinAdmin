@@ -3,6 +3,9 @@ package config
 import (
 	"GinAdmin/config/autoload"
 	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/goccy/go-yaml"
 )
@@ -17,6 +20,7 @@ type Conf struct {
 	Timezone *string               `yaml:"timezone"`
 	Logger   autoload.LoggerConfig `yaml:"logger"`
 	BasePath string                `yaml:"base_path"`
+	Storage  StorageConfig         `yaml:"storage"`
 }
 
 type JWTConfig struct {
@@ -38,6 +42,74 @@ type RedisConfig struct {
 	Enable bool `yaml:"enable"`
 }
 
+// 存储配置
+type StorageConfig struct {
+	RootDir     string   `yaml:"root_dir"`      // 存储的跟路径，相对路径是，基于 BasePath
+	ChunkSize   int64    `yaml:"chunk_size"`    // 分片大小，必须与前端 CHUNK_SIZE 一致
+	MaxFileSize int64    `yaml:"max_file_size"` // 文件大小上限
+	AllowExt    []string `yaml:"allow_ext"`     // 扩展名白名单，为空表示不限制
+	TmpTTL      string   `yaml:"tmp_ttl"`       // 未完成任务的保留时长
+}
+
+const (
+	defaultChunkSize   int64 = 5 << 20        // 5MB
+	defaultMaxFileSize int64 = 10 << 30       // 10GB
+	defaultTmpTTL            = 24 * time.Hour // 24小时
+)
+
+/*
+获取存储根路径
+*/
+func (c *Conf) StorageRoot() string {
+	dir := c.Storage.RootDir
+	if dir == "" {
+		dir = "storage/uploads"
+	}
+	if filepath.IsAbs(dir) {
+		return dir
+	}
+
+	return filepath.Join(c.BasePath, dir)
+}
+
+func (c *Conf) ChunkSize() int64 {
+	if c.Storage.ChunkSize > 0 {
+		return c.Storage.ChunkSize
+	}
+	return defaultChunkSize
+}
+
+func (c *Conf) MaxFileSize() int64 {
+	if c.Storage.MaxFileSize > 0 {
+		return c.Storage.MaxFileSize
+	}
+	return defaultMaxFileSize
+}
+
+// ExtAllowed 扩展名白名单校验
+func (c *Conf) ExtAllowed(ext string) bool {
+	if len(c.Storage.AllowExt) == 0 {
+		return true
+	}
+	for _, item := range c.Storage.AllowExt {
+		if strings.EqualFold(item, ext) {
+			return true
+		}
+	}
+	return false
+}
+
+// TmpTTLDuration 未完成任务的保留时长
+func (c *Conf) TmpTTLDuration() time.Duration {
+	if d, err := time.ParseDuration(c.Storage.TmpTTL); err == nil && d > 0 {
+		return d
+	}
+	return defaultTmpTTL
+}
+
+// ------------------------------------------------------------
+// 配置文件解析
+// ------------------------------------------------------------
 var cfg Conf
 
 /**
@@ -69,46 +141,3 @@ func InitConfig(path string) error {
 func GetConfig() *Conf {
 	return &cfg
 }
-
-/**
-* 配置重载处理器
-**/
-// type ConfigReloadHandler struct {
-// 	Name     string
-// 	Priority int
-// 	Handle   func(oldConfig, newConfig *Conf, diff ConfigDiff) error
-// }
-// type ConfigDiff struct {
-// 	LoggerChanged         bool
-// 	MysqlChanged          bool
-// 	RedisChanged          bool
-// 	JWTChanged            bool
-// 	JWTSecretChanged      bool
-// 	BaseURLChanged        bool
-// 	CORSChanged           bool
-// 	TrustedProxiesChanged bool
-// 	LightAppChanged       bool
-// 	RestartRequiredFields []string
-// 	ChangedFields         []string
-// }
-
-// RegisterConfigReloadHandler 注册配置热更新回调。
-// func RegisterConfigReloadHandler(handler ConfigReloadHandler) {
-// if handler.Name == "" {
-// 	return
-// }
-
-// reloadHandlersMu.Lock()
-// defer reloadHandlersMu.Unlock()
-
-// for i := range reloadHandlers {
-// 	if reloadHandlers[i].Name == handler.Name {
-// 		reloadHandlers[i] = handler
-// 		sortConfigReloadHandlersLocked()
-// 		return
-// 	}
-// }
-
-// reloadHandlers = append(reloadHandlers, handler)
-// sortConfigReloadHandlersLocked()
-// }

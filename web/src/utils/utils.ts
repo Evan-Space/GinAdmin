@@ -23,10 +23,9 @@ export function omitEmptyValues<T extends PlainObject>(obj: T): Partial<T> {
     return result
 }
 
-
 /**
  * 处理请求错误
-*/
+ */
 export function handleRequestError(error: unknown) {
     if (error instanceof Error) {
         return error.message

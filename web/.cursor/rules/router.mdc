@@ -20,7 +20,7 @@ alwaysApply: false
 
 - `src/pages/__root.tsx` 使用 Ant Design `ConfigProvider` 和 `App` 包裹应用。
 - `src/pages/_layout.tsx` 挂载后台共享布局。
-- 登录路由：`src/pages/login/index.tsx`
+- 登录路由：`src/pages/login/index.ts`
 - 后台管理路由位于 `src/pages/_layout` 下。
 
 ## 新增页面

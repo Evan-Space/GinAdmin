@@ -14,7 +14,7 @@
 小型 route-owned table：
 
 ```text
-src/pages/_layout/<page>/index.tsx
+src/pages/_layout/<page>/index.ts
 src/pages/_layout/<page>/-hooks.tsx
 src/pages/_layout/<page>/-types.ts
 src/pages/_layout/<page>/-constant.tsx

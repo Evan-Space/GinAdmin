@@ -143,7 +143,7 @@ src/features/<feature-name>/
 小型路由专属代码可以沿用现有模式：
 
 ```text
-src/pages/_layout/<page>/index.tsx
+src/pages/_layout/<page>/index.ts
 src/pages/_layout/<page>/-hooks.tsx
 src/pages/_layout/<page>/-types.ts
 src/pages/_layout/<page>/-constant.tsx

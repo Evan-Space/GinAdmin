@@ -3,6 +3,7 @@ package bootstrapx
 import (
 	"GinAdmin/config"
 	"GinAdmin/internal/pkg/logger"
+	"GinAdmin/internal/service"
 	"GinAdmin/internal/validator"
 	"time"
 )
@@ -13,7 +14,6 @@ import (
 func InitializeConfig(configPath string) error {
 	return config.InitConfig(configPath)
 }
-
 
 func InitializeTimezone() {
 	cfg := config.GetConfig()
@@ -29,17 +29,25 @@ func InitializeTimezone() {
 	time.Local = location
 }
 
-
-
 /**
 * 初始化日志
-*/
-func InitializeLogger()  error {
+ */
+func InitializeLogger() error {
 	return logger.InitLogger()
 }
 
-
-
 func InitializeValidator() error {
 	return validator.InitValidator()
+}
+
+// InitializeUploadCleaner 定时回收断点续传遗留的临时分片
+func InitializeUploadClear() {
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		svc := service.NewUploadService()
+		for range ticker.C {
+			svc.CleanExpired()
+		}
+	}()
 }

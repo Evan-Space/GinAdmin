@@ -11,7 +11,7 @@ src/request/request.ts
 领域模块：
 
 ```text
-src/request/login/index.tsx
+src/request/login/index.ts
 src/request/userList/index.ts
 ```
 

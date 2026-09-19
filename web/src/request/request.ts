@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api/v1'
+export const BASE_URL = 'http://localhost:8080/api/v1'
 const TOKEN_KEY = 'auth_token'
 
 // 不需要 token 的接口

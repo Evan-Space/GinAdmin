@@ -17,7 +17,7 @@
 布局拆分为：
 
 ```text
-src/layout/index.tsx
+src/layout/index.ts
 src/layout/components/Header.tsx
 src/layout/components/Sider.tsx
 src/layout/components/Content.tsx
@@ -34,14 +34,14 @@ src/layout/constants.tsx
 现有页面示例：
 
 ```text
-src/pages/_layout/index.tsx
-src/pages/_layout/userList/index.tsx
+src/pages/_layout/index.ts
+src/pages/_layout/userList/index.ts
 src/pages/_layout/permission.tsx
 src/pages/_layout/log/requestLog.tsx
 src/pages/_layout/log/errorLog.tsx
 src/pages/_layout/task.tsx
 src/pages/_layout/setting.tsx
-src/pages/login/index.tsx
+src/pages/login/index.ts
 ```
 
 ## 路由本地辅助文件
