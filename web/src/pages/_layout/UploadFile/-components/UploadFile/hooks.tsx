@@ -1,9 +1,9 @@
-import { useRef } from 'react'
-import { getToken } from '@src/request/request'
+import { useRef, useState } from 'react'
+import { Upload as UploadAPI } from '@src/request/Upload.ts'
 
 export const useCustomUploadFile = () => {
     const filesRef = useRef<File[]>([])
-
+    const [progress, setProgress] = useState<number>(0)
 
     /**
      * 拿到上传文件
@@ -13,15 +13,10 @@ export const useCustomUploadFile = () => {
 
         const form = new FormData()
         form.append('file', files[0])
-
-        await fetch('http://localhost:8080/api/v1/upload/uploadFile', {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-            method: 'POST',
-            body: form,
+        setProgress(0)
+        await UploadAPI('/uploadFile', form, (val) => {
+            setProgress(val)
         })
-
     }
 
     return {

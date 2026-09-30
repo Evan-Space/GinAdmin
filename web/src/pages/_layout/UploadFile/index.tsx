@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { CustomUploadFile } from './-components/customDemo/CustomUploadFile'
+import { Index } from './-components/UploadFile'
 
 export const Route = createFileRoute('/_layout/UploadFile/')({
     component: RouteComponent,
@@ -7,6 +7,6 @@ export const Route = createFileRoute('/_layout/UploadFile/')({
 
 function RouteComponent() {
     return <div>
-        <CustomUploadFile />
+        <Index />
     </div>
 }

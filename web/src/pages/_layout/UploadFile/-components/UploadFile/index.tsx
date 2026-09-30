@@ -1,6 +1,6 @@
 import { useCustomUploadFile } from './hooks.tsx'
 
-export const CustomUploadFile = () => {
+export const Index = () => {
     const { handleFileChange } = useCustomUploadFile()
     return (
         <div className="my-10 min-h-25 border border-solid border-#000">
