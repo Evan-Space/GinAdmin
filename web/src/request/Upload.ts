@@ -1,9 +1,12 @@
 import { fetchResponse, getToken, redirectToLogin } from '@src/request/request.ts'
 
-
 const UPLOAD_BASE_URL = 'http://localhost:8080/api/v1/upload'
 
-export const Upload = <T>(url: string, form: FormData, onProgress?: (percent: number) => void) => {
+export const Upload = <T>(
+    url: string,
+    body?: XMLHttpRequestBodyInit | null,
+    onProgress?: (percent: number) => void,
+) => {
     const token = getToken()
     if (!token) {
         redirectToLogin()
@@ -13,7 +16,6 @@ export const Upload = <T>(url: string, form: FormData, onProgress?: (percent: nu
         const xhr = new XMLHttpRequest()
         xhr.open('POST', `${UPLOAD_BASE_URL}${url}`)
         xhr.setRequestHeader('Authorization', `Bearer ${token}`)
-
 
         xhr.upload.onprogress = (event) => {
             if (!event.lengthComputable || !onProgress) return
@@ -30,6 +32,6 @@ export const Upload = <T>(url: string, form: FormData, onProgress?: (percent: nu
         }
 
         xhr.onerror = () => reject(new Error('上传失败，请稍后重试'))
-        xhr.send(form)
+        xhr.send(body)
     })
 }

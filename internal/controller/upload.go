@@ -5,9 +5,12 @@ import (
 	"GinAdmin/internal/service"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
+
+const chunkSize = 5 << 20
 
 type UploadController struct {
 	Api
@@ -56,17 +59,37 @@ func (ctl *UploadController) UploadFile(c *gin.Context) {
 		return
 	}
 	ctl.Fail(c, errors.InvalidParameter, "请选择文件")
+}
 
-	//file, err := c.FormFile("file")
-	//if err != nil {
-	//	ctl.Fail(c, errors.InvalidParameter, "请选择文件")
-	//	return
-	//}
-	//path, err := ctl.uploadService.SaveFile(file) // 调用 service 中方法，写入文件并且拿到返回值 path
-	//if err != nil {
-	//	ctl.Fail(c, errors.ServerErr, err.Error())
-	//	return
-	//}
-	//
-	//ctl.Success(c, gin.H{"path": path})
+func (ctl *UploadController) Chunk(c *gin.Context) {
+	index, err := strconv.Atoi(c.Query("index"))
+	if err != nil || index < 0 {
+		ctl.Fail(c, errors.InvalidParameter, "分片序号无效")
+		return
+	}
+
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, chunkSize)
+	if err = ctl.uploadService.SaveChunk(index, c.Request.Body); err != nil {
+		ctl.Fail(c, errors.ServerErr, err.Error())
+		return
+	}
+
+	ctl.Success(c, gin.H{"index": index})
+
+}
+
+func (ctl *UploadController) Merge(c *gin.Context) {
+	total, err := strconv.Atoi(c.Query("total"))
+	filename := c.Query("filename")
+	if err != nil || total <= 0 || filename == "" {
+		ctl.Fail(c, errors.InvalidParameter, "合并参数无效")
+		return
+	}
+
+	path, err := ctl.uploadService.Merge(total, filename)
+	if err != nil {
+		ctl.Fail(c, errors.ServerErr, err.Error())
+		return
+	}
+	ctl.Success(c, gin.H{"path": path})
 }
