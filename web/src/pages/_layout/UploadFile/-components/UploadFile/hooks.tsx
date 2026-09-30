@@ -21,5 +21,6 @@ export const useCustomUploadFile = () => {
 
     return {
         handleFileChange,
+        progress, // 上传进度条
     }
 }

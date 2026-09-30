@@ -29,6 +29,7 @@ go.work.sum
 .idea/
 .vscode/
 logs/
+uploadFiles/
 
 
 
