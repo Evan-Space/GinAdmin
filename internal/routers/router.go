@@ -46,6 +46,7 @@ func AdminRouteTree() RouteGroupDef {
 	deptCtrl := controller.NewDeptController()
 	dashboardCtrl := controller.NewDashboardController()
 	authCtrl := controller.NewAuthController()
+	uploadCtrl := controller.NewUploadController()
 
 	return RouteGroupDef{
 		Prefix: "api/v1",
@@ -75,6 +76,13 @@ func AdminRouteTree() RouteGroupDef {
 				Routes: []RouteDef{
 					GET("get", "获取当前用户信息", AuthLogin, adminUserCtrl.GetUserInfo),
 					POST("update-profile", "更新个人资料", AuthLogin, adminUserCtrl.UpdateProfile),
+				},
+			},
+
+			{
+				Prefix: "upload",
+				Routes: []RouteDef{
+					POST("uploadFile", "上传文件", AuthLogin, uploadCtrl.UploadFile),
 				},
 			},
 

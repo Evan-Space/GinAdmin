@@ -25,8 +25,12 @@ logger:
   division_time:
     max_age: 15
     rotation_time: 24
-  division_size: 
+  division_size:
     max_size: 100
     max_backups: 15
     max_age: 15
     compress: false
+
+
+
+basePath: 'uploadFiles'
