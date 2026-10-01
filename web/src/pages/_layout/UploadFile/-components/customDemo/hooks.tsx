@@ -1,30 +1,39 @@
-import { useRef } from 'react'
-import { getToken } from '@src/request/request'
+import { useState } from 'react'
+import { xhrRequest } from '@src/request/UploadFile'
 
 export const useCustomUploadFile = () => {
-    const filesRef = useRef<File[]>([])
-
+    const [onProgress, setOnProgress] = useState<number>(0)
 
     /**
      * 拿到上传文件
      * */
-    const handleFileChange = async (files: FileList | []) => {
-        if (files.length === 0) return
+    const handleFileChange = async (file: File | undefined) => {
+        if (!file) return
 
-        const form = new FormData()
-        form.append('file', files[0])
+        // const form = new FormData()
+        // form.append('file', file)
+        const blob = file.slice(0, file.size, file.type || "application/octet-stream")
 
-        await fetch('http://localhost:8080/api/v1/upload/uploadFile', {
-            headers: {
-                Authorization: `Bearer ${getToken()}`,
-            },
-            method: 'POST',
-            body: form,
-        })
-
+        setOnProgress(0)
+        try {
+            const res = await xhrRequest({
+                url: '/upload/uploadFile',
+                method: 'POST',
+                body: blob,
+                onProgress: (val) => setOnProgress(val),
+                headers: {
+                    'X-File-Name': encodeURIComponent(file.name),
+                },
+            })
+            if (res.code !== 0) return
+            setOnProgress(100)
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     return {
         handleFileChange,
+        onProgress,
     }
 }
