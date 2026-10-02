@@ -36,17 +36,4 @@ func (ctl *UploadController) UploadFile(c *gin.Context) {
 		return
 	}
 	ctl.Success(c, gin.H{"path": path})
-
-	//file, err := c.FormFile("file")
-	//if err != nil {
-	//	ctl.Fail(c, errors.InvalidParameter, "请选择文件")
-	//	return
-	//}
-	//path, err := ctl.uploadService.SaveFile(file) // 调用 service 中方法，写入文件并且拿到返回值 path
-	//if err != nil {
-	//	ctl.Fail(c, errors.ServerErr, err.Error())
-	//	return
-	//}
-	//
-	//ctl.Success(c, gin.H{"path": path})
 }
