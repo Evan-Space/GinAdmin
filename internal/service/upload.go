@@ -68,6 +68,7 @@ func NewUploadService() *UploadService {
 //	return filepath.Join("uploadFiles", name), nil
 //}
 
+// 检查上传的文件是否支持
 func checkUploadType(filename string, head []byte) error {
 	ext := strings.ToLower(filepath.Ext(filename))
 
