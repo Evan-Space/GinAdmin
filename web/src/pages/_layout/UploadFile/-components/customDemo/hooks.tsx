@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { xhrRequest } from '@src/request/UploadFile'
 import { POST } from '@src/request'
+import { limitPromise } from '@src/utils/utils.ts'
 
 const CHUNK_SIZE = 5 * 1024 * 1024 // 分片大小
 
@@ -19,15 +20,15 @@ export const useCustomUploadFile = () => {
         const total = Math.ceil(file.size / CHUNK_SIZE)
         const uploadId = crypto.randomUUID() // 生成一个 uploadId
 
-        try {
-            for (let index = 0; index < total; index++) {
+        const taskArray = Array.from({ length: total }, (_, index) => {
+            return () => {
                 const startIndex = index * CHUNK_SIZE
                 const blob = file.slice(startIndex, startIndex + CHUNK_SIZE) // 截取某段 文件
                 const queryParams = new URLSearchParams({
                     upload_id: uploadId,
                     index: String(index),
                 })
-                const res = await xhrRequest({
+                return xhrRequest({
                     url: `/upload/chunk?${queryParams}`,
                     method: 'POST',
                     headers: { 'Content-Type': 'application/octet-stream' },
@@ -37,10 +38,12 @@ export const useCustomUploadFile = () => {
                         setOnProgress(Math.round((loaded / file.size) * 100))
                     },
                 })
-
-                if (res.code !== 0) return
             }
+        })
 
+        try {
+            const result = await limitPromise(taskArray, 3)
+            if (result.some((item) => item instanceof Error || item.code !== 0)) return
             const done = await POST<{ path: string }>('/upload/complete', {
                 upload_id: uploadId,
                 file_name: file.name,
@@ -49,7 +52,6 @@ export const useCustomUploadFile = () => {
 
             if (done.code !== 0) return
             setOnProgress(100)
-
         } catch (err) {
             console.error(err)
         }

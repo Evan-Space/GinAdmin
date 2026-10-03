@@ -23,13 +23,56 @@ export function omitEmptyValues<T extends PlainObject>(obj: T): Partial<T> {
     return result
 }
 
-
 /**
  * 处理请求错误
-*/
+ */
 export function handleRequestError(error: unknown) {
     if (error instanceof Error) {
         return error.message
     }
     return '请求错误'
+}
+
+/**
+ * 控制请求并发数量
+ * */
+export const limitPromise = <T>(taskArr: Array<() => Promise<T>>, limit: number): Promise<T[]> => {
+    return new Promise((resolve) => {
+        const results = new Array(taskArr.length)
+        let activeCount = 0
+        let nextTaskINdex = 0
+
+        const runNext = () => {
+            if (nextTaskINdex >= taskArr.length) {
+                if (activeCount === 0) {
+                    resolve(results)
+                }
+                return
+            }
+
+            const currentTaskIndex = nextTaskINdex++
+            activeCount++
+
+            Promise.resolve()
+                .then(taskArr[currentTaskIndex])
+                .then(
+                    (res) => {
+                        results[currentTaskIndex] = res
+                    },
+                    (err) => {
+                        results[currentTaskIndex] = err
+                    },
+                )
+                .finally(() => {
+                    activeCount--
+                    runNext()
+                })
+
+            if (activeCount < limit) {
+                runNext()
+            }
+        }
+
+        runNext()
+    })
 }
