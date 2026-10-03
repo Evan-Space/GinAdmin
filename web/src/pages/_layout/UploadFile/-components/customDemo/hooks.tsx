@@ -18,14 +18,22 @@ export const useCustomUploadFile = () => {
 
         setOnProgress(0)
         const total = Math.ceil(file.size / CHUNK_SIZE)
-        const uploadId = crypto.randomUUID() // 生成一个 uploadId
+        const initRes = await POST<{ upload_id: string; chunk_size: number; chunk_total: number }>(
+            '/upload/init',
+            {
+                file_name: file.name,
+                file_size: file.size,
+            },
+        )
+        if (initRes.code !== 0) return
 
+        
         const taskArray = Array.from({ length: total }, (_, index) => {
             return () => {
                 const startIndex = index * CHUNK_SIZE
                 const blob = file.slice(startIndex, startIndex + CHUNK_SIZE) // 截取某段 文件
                 const queryParams = new URLSearchParams({
-                    upload_id: uploadId,
+                    upload_id: initRes.data.upload_id,
                     index: String(index),
                 })
                 return xhrRequest({
@@ -45,7 +53,7 @@ export const useCustomUploadFile = () => {
             const result = await limitPromise(taskArray, 3)
             if (result.some((item) => item instanceof Error || item.code !== 0)) return
             const done = await POST<{ path: string }>('/upload/complete', {
-                upload_id: uploadId,
+                upload_id: initRes.data.upload_id,
                 file_name: file.name,
                 chunk_total: total,
             })

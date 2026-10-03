@@ -2,6 +2,8 @@ package service
 
 import (
 	"GinAdmin/config"
+	"GinAdmin/data"
+	"GinAdmin/internal/model"
 	"GinAdmin/internal/pkg/errors"
 	"fmt"
 	"io"
@@ -9,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -24,11 +27,72 @@ var allowedExt = map[string]string{
 	".mov":  "video/quicktime",
 }
 
+const ChunkSize int64 = 5 * 1024 * 1024
+const uploadTaskTTL = 7 * 24 * time.Hour // 未完成上传任务保留 7 天
+
+type InitResult struct {
+	UploadId   string `json:"upload_id"`
+	ChunkSize  int64  `json:"chunk_size"`
+	ChunkTotal int    `json:"chunk_total"`
+	Uploaded   []int  `json:"uploaded"`
+	Finished   bool   `json:"finished"`
+}
 type UploadService struct{}
 
 func NewUploadService() *UploadService {
 
 	return &UploadService{}
+}
+
+func (s *UploadService) Init(userId uint, fileName string, fileSize int64) (*InitResult, error) {
+	ext := strings.ToLower(filepath.Ext(fileName))
+	if _, ok := allowedExt[ext]; !ok || fileSize <= 0 {
+		return nil, errors.NewBusinessError(errors.InvalidParameter, "参数错误")
+	}
+
+	chunkTotal := int((fileSize + ChunkSize - 1) / ChunkSize)
+	uploadId := uuid.NewString()
+
+	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId)
+	if err := os.MkdirAll(dir, 0o755); err != nil { // 创建目标文件夹，用来存放上传文件的位置
+		return nil, fmt.Errorf("创建文件夹失败 %w", err)
+	}
+	task := model.UploadTask{
+		UploadId:   uploadId,
+		UserId:     userId,
+		FileName:   filepath.Base(fileName),
+		FileSize:   fileSize,
+		ChunkSize:  ChunkSize,
+		ChunkTotal: chunkTotal,
+		Status:     model.UploadStatusUploading,
+		ExpiredAt:  time.Now().Add(uploadTaskTTL),
+	}
+	if err := data.GetDB().Create(&task).Error; err != nil {
+		os.RemoveAll(dir)
+		return nil, fmt.Errorf("创建上传任务失败 %w", err)
+	}
+
+	return &InitResult{
+		UploadId:   uploadId,
+		ChunkSize:  ChunkSize,
+		ChunkTotal: chunkTotal,
+	}, nil
+
+	//var done model.UploadTask
+	//err := data.GetDB().Where("file_hash = ? AND status = ?", fileHash, model.UploadStatusCompleted).First(&done).Error
+	//if err != nil {
+	//	return &InitResult{
+	//		UploadId: done.UploadId,
+	//		Finished: true,
+	//		Uploaded: []int{},
+	//	}, nil
+	//}
+	//var task model.UploadTask
+	//err = data.GetDB().Where(
+	//	"user_id = ? AND file_path = ? AND status = ? AND expired_at > ?",
+	//	userId, fileHash, model.UploadStatusUploading, time.Now(),
+	//).First(())
+
 }
 
 // 检查上传的文件是否支持
@@ -89,12 +153,25 @@ func (s *UploadService) SaveChunk(uploadId string, index int, src io.Reader) err
 	return os.Rename(tmp, final) // 分片内容写入完之后改名
 }
 
-func (s *UploadService) MergeChunks(uploadId string, filename string, total int) (string, error) {
-	if _, err := uuid.Parse(uploadId); err != nil || total < 0 { // 校验请求参数
+func (s *UploadService) MergeChunks(uploadId string, userId uint) (string, error) {
+	if _, err := uuid.Parse(uploadId); err != nil { // 校验请求参数
 		return "", errors.NewBusinessError(errors.InvalidParameter, "参数错误")
 	}
+
+	task, err := s.LoadTask(uploadId, userId)
+	if err != nil {
+		return "", err
+	}
+
 	chunkDir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId) // 拼接保存分片的文件夹路径
 
+	for i := 0; i < task.ChunkTotal; i++ {
+		if _, err := os.Stat(filepath.Join(chunkDir, fmt.Sprintf("%d.part", i))); err != nil {
+			return "", errors.NewBusinessError(errors.InvalidParameter, fmt.Sprintf("缺少第%d个分片", i))
+		}
+	}
+
+	filename := task.FileName
 	first, err := os.Open(filepath.Join(chunkDir, "0.part"))
 	if err != nil {
 		return "", errors.NewBusinessError(errors.InvalidParameter, "缺少分片")
@@ -119,7 +196,7 @@ func (s *UploadService) MergeChunks(uploadId string, filename string, total int)
 	}
 	defer dst.Close() // 延迟关闭
 
-	for i := 0; i < total; i++ {
+	for i := 0; i < task.ChunkTotal; i++ {
 		part, err := os.Open(filepath.Join(chunkDir, fmt.Sprintf("%d.part", i))) // 打开某个分片，获取分片内容
 		if err != nil {
 			os.Remove(dstPath)
@@ -134,4 +211,18 @@ func (s *UploadService) MergeChunks(uploadId string, filename string, total int)
 	}
 	os.RemoveAll(chunkDir) // 写入完成后移除所有的临时分片文件
 	return filepath.Join("uploadFiles", name), nil
+}
+
+func (s *UploadService) LoadTask(uploadId string, userId uint) (*model.UploadTask, error) {
+	if _, err := uuid.Parse(uploadId); err != nil {
+		return nil, errors.NewBusinessError(errors.InvalidParameter, "参数错误")
+	}
+	var task model.UploadTask
+	if err := data.GetDB().Where("upload_id = ?", uploadId).First(&task).Error; err != nil {
+		return nil, errors.NewBusinessError(errors.InvalidParameter, "上传任务不存在")
+	}
+	if task.UserId != userId || task.Status != model.UploadStatusUploading {
+		return nil, errors.NewBusinessError(errors.InvalidParameter, "权限不足")
+	}
+	return &task, nil
 }
