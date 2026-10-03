@@ -82,7 +82,9 @@ func AdminRouteTree() RouteGroupDef {
 			{
 				Prefix: "upload",
 				Routes: []RouteDef{
-					POST("uploadFile", "上传文件", AuthLogin, uploadCtrl.UploadFile),
+					//POST("uploadFile", "上传文件", AuthLogin, uploadCtrl.UploadFile),
+					POST("chunk", "上传分片", AuthLogin, uploadCtrl.Chunk),
+					POST("complete", "合并文件分片", AuthLogin, uploadCtrl.Complete),
 				},
 			},
 

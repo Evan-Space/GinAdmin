@@ -3,7 +3,6 @@ package service
 import (
 	"GinAdmin/config"
 	"GinAdmin/internal/pkg/errors"
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -31,42 +30,6 @@ func NewUploadService() *UploadService {
 
 	return &UploadService{}
 }
-
-//func (s *UploadService) SaveFile(file *multipart.FileHeader) (string, error) {
-//	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles") // 拼接保存文件的目标文件夹
-//	//  os.MkdirAll 递归创建目录，把目标路径上所有未存在的目录都创建
-//	if err := os.MkdirAll(dir, 0o755); err != nil {
-//		return "", fmt.Errorf("创建目录失败: %w", err)
-//	}
-//
-//	src, err := file.Open() // 打开这个文件，准备进行读取或者写入，打开后必须 Close 关闭
-//	if err != nil {
-//		return "", fmt.Errorf("打开文件失败 %w", err)
-//	}
-//	defer src.Close()
-//
-//	ext := filepath.Ext(file.Filename)                                // 取文件拓展名，结果带 .
-//	baseName := strings.TrimSuffix(filepath.Base(file.Filename), ext) // strings.TrimSuffix 从字符串末尾开始，删除指定 字符串
-//	name := baseName + uuid.NewString() + ext
-//	dstPath := filepath.Join(dir, name) // filepath.Join把多个路径 拼接成一个完整的路径
-//
-//	/*
-//		Create 创建一个文件，并返回这个文件对象，以供后续操作， dstPath 文件路径
-//		如果已经有改文件，则清空该文件内容，然后重新写入
-//	*/
-//	dst, err := os.Create(dstPath)
-//	if err != nil {
-//		return "", fmt.Errorf("创建文件失败： %w", err)
-//	}
-//	defer dst.Close()
-//
-//	// 把 src 的数据写入 dst 中。
-//	if _, err := io.Copy(dst, src); err != nil {
-//		return "", fmt.Errorf("写入文件失败, %w", err)
-//	}
-//
-//	return filepath.Join("uploadFiles", name), nil
-//}
 
 // 检查上传的文件是否支持
 func checkUploadType(filename string, head []byte) error {
@@ -99,47 +62,76 @@ func checkUploadType(filename string, head []byte) error {
 
 }
 
-func (s *UploadService) SaveStream(filename string, src io.Reader) (string, error) {
-	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", fmt.Errorf("创建目录失败 %w", err)
+func (s *UploadService) SaveChunk(uploadId string, index int, src io.Reader) error {
+	if _, err := uuid.Parse(uploadId); err != nil || index < 0 {
+		return errors.NewBusinessError(errors.InvalidParameter, "参数错误")
+	}
+	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId) // 拼接分片保存位置目录
+	if err := os.MkdirAll(dir, 0o755); err != nil {                                   // 创建目录
+		return fmt.Errorf("创建目录失败 %w", err)
 	}
 
-	ext := filepath.Ext(filename)                                // 取文件拓展名，结果带 .
-	baseName := strings.TrimSuffix(filepath.Base(filename), ext) // strings.TrimSuffix 从字符串末尾开始，删除指定 字符串
-	name := baseName + uuid.NewString() + ext
-	dstPath := filepath.Join(dir, name) // filepath.Join把多个路径 拼接成一个完整的路径
+	final := filepath.Join(dir, fmt.Sprintf("%d.part", index)) // 拼接分片文件的最终名字
+	tmp := final + ".tmp"                                      // 分片文件的临时名字，仅供保存临时分片文件时使用。
+	dst, err := os.Create(tmp)
+	if err != nil {
+		return fmt.Errorf("创建分片失败 %w", err)
+	}
+	if _, err := io.Copy(dst, src); err != nil {
+		dst.Close()
+		os.Remove(tmp)
+		return fmt.Errorf("分片文件写入失败 %w", err)
+	}
+	if err := dst.Close(); err != nil {
+		os.Remove(tmp)
+		return fmt.Errorf("关闭分片文件失败 %w", err)
+	}
+	return os.Rename(tmp, final) // 分片内容写入完之后改名
+}
 
+func (s *UploadService) MergeChunks(uploadId string, filename string, total int) (string, error) {
+	if _, err := uuid.Parse(uploadId); err != nil || total < 0 { // 校验请求参数
+		return "", errors.NewBusinessError(errors.InvalidParameter, "参数错误")
+	}
+	chunkDir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId) // 拼接保存分片的文件夹路径
+
+	first, err := os.Open(filepath.Join(chunkDir, "0.part"))
+	if err != nil {
+		return "", errors.NewBusinessError(errors.InvalidParameter, "缺少分片")
+	}
 	head := make([]byte, 512)
-	n, err := io.ReadFull(src, head)
+	n, err := io.ReadFull(first, head)
+	first.Close()
 	if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
-		return "", fmt.Errorf("读取文件头失败: %w", err)
+		return "", fmt.Errorf("读取文件头失败 %w", err)
 	}
-	head = head[:n]
-	if err := checkUploadType(filename, head); err != nil {
+	if err := checkUploadType(filename, head[:n]); err != nil {
 		return "", err
 	}
-	src = io.MultiReader(bytes.NewReader(head), src)
 
-	//	/*
-	//		Create 创建一个文件，并返回这个文件对象，以供后续操作， dstPath 文件路径
-	//		如果已经有改文件，则清空该文件内容，然后重新写入
-	//	*/
-	dst, err := os.Create(dstPath)
+	ext := strings.ToLower(filepath.Ext(filename))
+	// filepath.Base(filename) 取完整路径的最后一部分
+	name := strings.TrimSuffix(filepath.Base(filename), ext) + uuid.NewString() + ext // 先去掉filepath 自带的拓展名字，然后拼接上 uuid + 文件后缀
+	dstPath := filepath.Join(config.GetConfig().BasePath, "uploadFiles", name)        // 拼接最终文件的保存路径，包含最终文件的文件名
+	dst, err := os.Create(dstPath)                                                    // 创建最终的文件，并打开，准备向其中写入文件。
 	if err != nil {
 		return "", fmt.Errorf("创建文件失败 %w", err)
 	}
+	defer dst.Close() // 延迟关闭
 
-	if _, err := io.Copy(dst, src); err != nil {
-		dst.Close()
-		os.Remove(dstPath)
-		return "", fmt.Errorf("写入文件失败 %w", err)
+	for i := 0; i < total; i++ {
+		part, err := os.Open(filepath.Join(chunkDir, fmt.Sprintf("%d.part", i))) // 打开某个分片，获取分片内容
+		if err != nil {
+			os.Remove(dstPath)
+			return "", errors.NewBusinessError(errors.InvalidParameter, "缺少分片")
+		}
+		_, err = io.Copy(dst, part)
+		part.Close() // 读取分片内容完成后，就立马关闭分片。
+		if err != nil {
+			os.Remove(dstPath)
+			return "", fmt.Errorf("合并分片失败 %w", err)
+		}
 	}
-
-	if err := dst.Close(); err != nil {
-		os.Remove(dstPath)
-		return "", fmt.Errorf("关闭文件失败 %w", err)
-	}
-
+	os.RemoveAll(chunkDir) // 写入完成后移除所有的临时分片文件
 	return filepath.Join("uploadFiles", name), nil
 }
