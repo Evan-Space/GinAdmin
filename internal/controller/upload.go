@@ -86,3 +86,12 @@ func (ctl *UploadController) Complete(c *gin.Context) {
 
 	ctl.Success(c, gin.H{"path": path})
 }
+
+func (ctl *UploadController) Status(c *gin.Context) {
+	result, err := ctl.uploadService.Status(c.Query("upload_id"), ctl.GetCurrentUserID(c))
+	if err != nil {
+		ctl.Err(c, err)
+		return
+	}
+	ctl.Success(c, result)
+}

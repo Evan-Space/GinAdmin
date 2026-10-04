@@ -5,15 +5,19 @@ import (
 	"GinAdmin/data"
 	"GinAdmin/internal/model"
 	"GinAdmin/internal/pkg/errors"
+	stdErrors "errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 var allowedExt = map[string]string{
@@ -45,9 +49,21 @@ func NewUploadService() *UploadService {
 }
 
 func (s *UploadService) Init(userId uint, fileName string, fileSize int64) (*InitResult, error) {
-	ext := strings.ToLower(filepath.Ext(fileName))
+	name := filepath.Base(fileName)
+	ext := strings.ToLower(filepath.Ext(name))
 	if _, ok := allowedExt[ext]; !ok || fileSize <= 0 {
 		return nil, errors.NewBusinessError(errors.InvalidParameter, "参数错误")
+	}
+
+	var task model.UploadTask
+	err := data.GetDB().Where(
+		"user_id = ? AND file_name = ? AND file_size = ? AND status = ? AND expired_at > ?",
+		userId, name, fileSize, model.UploadStatusUploading, time.Now()).First(&task).Error
+	if err == nil {
+		return s.taskResult(&task)
+	}
+	if !stdErrors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("查询上传任务失败 %w", err)
 	}
 
 	chunkTotal := int((fileSize + ChunkSize - 1) / ChunkSize)
@@ -57,7 +73,7 @@ func (s *UploadService) Init(userId uint, fileName string, fileSize int64) (*Ini
 	if err := os.MkdirAll(dir, 0o755); err != nil { // 创建目标文件夹，用来存放上传文件的位置
 		return nil, fmt.Errorf("创建文件夹失败 %w", err)
 	}
-	task := model.UploadTask{
+	task = model.UploadTask{
 		UploadId:   uploadId,
 		UserId:     userId,
 		FileName:   filepath.Base(fileName),
@@ -77,21 +93,6 @@ func (s *UploadService) Init(userId uint, fileName string, fileSize int64) (*Ini
 		ChunkSize:  ChunkSize,
 		ChunkTotal: chunkTotal,
 	}, nil
-
-	//var done model.UploadTask
-	//err := data.GetDB().Where("file_hash = ? AND status = ?", fileHash, model.UploadStatusCompleted).First(&done).Error
-	//if err != nil {
-	//	return &InitResult{
-	//		UploadId: done.UploadId,
-	//		Finished: true,
-	//		Uploaded: []int{},
-	//	}, nil
-	//}
-	//var task model.UploadTask
-	//err = data.GetDB().Where(
-	//	"user_id = ? AND file_path = ? AND status = ? AND expired_at > ?",
-	//	userId, fileHash, model.UploadStatusUploading, time.Now(),
-	//).First(())
 
 }
 
@@ -145,6 +146,12 @@ func (s *UploadService) SaveChunk(uploadId string, index int, src io.Reader) err
 		dst.Close()
 		os.Remove(tmp)
 		return fmt.Errorf("分片文件写入失败 %w", err)
+	}
+	if err != dst.Sync() {
+		//对文件调用 fsync。os.File 的写入先进内核页缓存，Sync 会把这些脏页强制落盘，并等待写完。只有返回 nil 才说明数据确实到了磁盘。
+		dst.Close()
+		os.Remove(tmp)
+		return fmt.Errorf("分片刷盘失败 %w", err)
 	}
 	if err := dst.Close(); err != nil {
 		os.Remove(tmp)
@@ -213,6 +220,10 @@ func (s *UploadService) MergeChunks(uploadId string, userId uint) (string, error
 	return filepath.Join("uploadFiles", name), nil
 }
 
+// LoadTask
+/*
+查询数据库中符合要求的 task 数据
+*/
 func (s *UploadService) LoadTask(uploadId string, userId uint) (*model.UploadTask, error) {
 	if _, err := uuid.Parse(uploadId); err != nil {
 		return nil, errors.NewBusinessError(errors.InvalidParameter, "参数错误")
@@ -225,4 +236,58 @@ func (s *UploadService) LoadTask(uploadId string, userId uint) (*model.UploadTas
 		return nil, errors.NewBusinessError(errors.InvalidParameter, "权限不足")
 	}
 	return &task, nil
+}
+
+func (s *UploadService) taskResult(task *model.UploadTask) (*InitResult, error) {
+	uploaded, err := uploadedIndexes(task.UploadId)
+	if err != nil {
+		return nil, err
+	}
+	return &InitResult{
+		UploadId:   task.UploadId,
+		ChunkSize:  task.ChunkSize,
+		ChunkTotal: task.ChunkTotal,
+		Uploaded:   uploaded,
+		Finished:   task.Status == model.UploadStatusCompleted,
+		//Finished:   false,
+	}, nil
+}
+
+// uploadedIndexes
+/*
+查已上传的分片序号
+*/
+func uploadedIndexes(uploadId string) ([]int, error) {
+	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId)
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []int{}, nil
+		}
+		return nil, fmt.Errorf("读取分片目录失败 %w", err)
+	}
+	indexes := make([]int, 0)
+	for _, entry := range entries {
+		name := entry.Name()
+		// .part.tmp 的文件是写了一半， 不算一个完整的切片，不算在内
+		if entry.IsDir() || !strings.HasSuffix(name, ".part") {
+			continue
+		}
+
+		index, err := strconv.Atoi(strings.TrimSuffix(name, ".part"))
+		if err != nil || index < 0 {
+			continue
+		}
+		indexes = append(indexes, index)
+	}
+	sort.Ints(indexes)
+	return indexes, nil
+}
+
+func (s *UploadService) Status(uploadId string, userId uint) (*InitResult, error) {
+	task, err := s.LoadTask(uploadId, userId)
+	if err != nil {
+		return nil, err
+	}
+	return s.taskResult(task)
 }
