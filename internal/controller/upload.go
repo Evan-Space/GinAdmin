@@ -42,27 +42,27 @@ func (ctl *UploadController) Init(c *gin.Context) {
 }
 
 func (ctl *UploadController) Chunk(c *gin.Context) {
-	uploadId := c.Query("upload_id")
-	index, err := strconv.Atoi(c.Query("index")) // 把 url 中的字符串转换成整数。
+	uploadId := c.Query("upload_id")             // 获取上传 ID
+	index, err := strconv.Atoi(c.Query("index")) // 把 url 中的 index 参数，字符串转换成整数。
 	if err != nil {
 		ctl.Fail(c, errors.InvalidParameter, "分片序号错误")
 		return
 	}
 
-	uid := ctl.GetCurrentUserID(c)
-	task, err := ctl.uploadService.LoadTask(uploadId, uid)
+	uid := ctl.GetCurrentUserID(c)                         // 获取当前用户 ID
+	task, err := ctl.uploadService.LoadTask(uploadId, uid) // 加载上传任务，查看当前数据库中是否存在上传任务
 	if err != nil {
 		ctl.Err(c, err)
 		return
 	}
-	if index < 0 || index >= task.ChunkTotal {
+	if index < 0 || index >= task.ChunkTotal { // 校验分片序号是否超出范围
 		ctl.Fail(c, errors.InvalidParameter, "分片序号超出范围")
 		return
 	}
 
-	body := http.MaxBytesReader(c.Writer, c.Request.Body, maxChunkSize)
+	body := http.MaxBytesReader(c.Writer, c.Request.Body, maxChunkSize) // 限制上传文件的大小
 	defer body.Close()
-	if err := ctl.uploadService.SaveChunk(uploadId, index, body); err != nil {
+	if err := ctl.uploadService.SaveChunk(uploadId, index, body); err != nil { // 保存分片
 		ctl.Err(c, err)
 		return
 	}
@@ -72,15 +72,15 @@ func (ctl *UploadController) Chunk(c *gin.Context) {
 }
 
 func (ctl *UploadController) Complete(c *gin.Context) {
-	var req struct {
+	var req struct { // 声明变量，用来接收请求参数
 		UploadId string `json:"upload_id"`
 	}
 
-	if err := c.ShouldBindJSON(&req); err != nil || req.UploadId == "" {
+	if err := c.ShouldBindJSON(&req); err != nil || req.UploadId == "" { // 校验请求参数
 		ctl.Fail(c, errors.InvalidParameter, "参数错误")
 		return
 	}
-	path, err := ctl.uploadService.MergeChunks(req.UploadId, ctl.GetCurrentUserID(c))
+	path, err := ctl.uploadService.MergeChunks(req.UploadId, ctl.GetCurrentUserID(c)) // 合并分片
 	if err != nil {
 		ctl.Err(c, err)
 		return
