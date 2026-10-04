@@ -4,6 +4,7 @@ import "time"
 
 const (
 	UploadStatusUploading uint8 = 1
+	UploadStatusFailed    uint8 = 2
 	UploadStatusCompleted uint8 = 3
 )
 
@@ -23,4 +24,18 @@ type UploadTask struct {
 
 func (UploadTask) TableName() string {
 	return "upload_task"
+}
+
+type FileObject struct {
+	BaseModel
+	Hash        string `json:"hash" gorm:"column:hash;type:char(64);not null;default:'';uniqueIndex"`
+	Size        int64  `json:"size" gorm:"column:size;type:bigint unsigned;not null;default:0"`
+	Ext         string `json:"ext" gorm:"column:ext;type:varchar(255);not null;default;''"`
+	Mime        string `json:"mime" gorm:"column:mime;type:varchar(120);not null;default:''"`
+	StoragePath string `json:"storage_path" gorm:"column:storage_path;type:varchar(255);not null;default:''"`
+	RefCount    uint   `json:"ref_count" gorm:"column:ref_count;type:int unsigned;not null;default:0"`
+}
+
+func (FileObject) TableName() string {
+	return "file_object"
 }

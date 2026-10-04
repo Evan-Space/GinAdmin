@@ -5,6 +5,8 @@ import (
 	"GinAdmin/data"
 	"GinAdmin/internal/model"
 	"GinAdmin/internal/pkg/errors"
+	"crypto/sha256"
+	"encoding/hex"
 	stdErrors "errors"
 	"fmt"
 	"io"
@@ -40,6 +42,7 @@ type InitResult struct {
 	ChunkTotal int    `json:"chunk_total"`
 	Uploaded   []int  `json:"uploaded"`
 	Finished   bool   `json:"finished"`
+	Path       string `json:"path"`
 }
 type UploadService struct{}
 
@@ -48,17 +51,34 @@ func NewUploadService() *UploadService {
 	return &UploadService{}
 }
 
-func (s *UploadService) Init(userId uint, fileName string, fileSize int64) (*InitResult, error) {
+func (s *UploadService) Init(userId uint, fileName string, fileSize int64, fileHash string) (*InitResult, error) {
 	name := filepath.Base(fileName)
 	ext := strings.ToLower(filepath.Ext(name))
-	if _, ok := allowedExt[ext]; !ok || fileSize <= 0 {
+	if _, ok := allowedExt[ext]; !ok || fileSize <= 0 || len(fileHash) != 64 {
 		return nil, errors.NewBusinessError(errors.InvalidParameter, "参数错误")
+	}
+
+	var object model.FileObject
+	err1 := data.GetDB().Where("hash = ?", fileHash).First(&object).Error
+	if err1 == nil {
+		if err := data.GetDB().Model(&model.FileObject{}).Where("id = ?", object.ID).Update("ref_count", gorm.Expr("ref_count + 1")).Error; err != nil {
+			return nil, fmt.Errorf("更新引用计数失败 %w", err)
+		}
+		return &InitResult{
+			Finished: true,
+			Path:     object.StoragePath,
+			Uploaded: []int{},
+		}, nil
+	}
+
+	if !stdErrors.Is(err1, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("查询文件失败 %w", err1)
 	}
 
 	var task model.UploadTask
 	err := data.GetDB().Where(
-		"user_id = ? AND file_name = ? AND file_size = ? AND status = ? AND expired_at > ?",
-		userId, name, fileSize, model.UploadStatusUploading, time.Now()).First(&task).Error
+		"user_id = ? AND file_hash = ? AND file_size = ? AND status = ? AND expired_at > ?",
+		userId, name, fileHash, model.UploadStatusUploading, time.Now()).First(&task).Error
 	if err == nil {
 		return s.taskResult(&task)
 	}
@@ -78,6 +98,7 @@ func (s *UploadService) Init(userId uint, fileName string, fileSize int64) (*Ini
 		UserId:     userId,
 		FileName:   filepath.Base(fileName),
 		FileSize:   fileSize,
+		FileHash:   fileHash,
 		ChunkSize:  ChunkSize,
 		ChunkTotal: chunkTotal,
 		Status:     model.UploadStatusUploading,
@@ -88,11 +109,7 @@ func (s *UploadService) Init(userId uint, fileName string, fileSize int64) (*Ini
 		return nil, fmt.Errorf("创建上传任务失败 %w", err)
 	}
 
-	return &InitResult{
-		UploadId:   uploadId,
-		ChunkSize:  ChunkSize,
-		ChunkTotal: chunkTotal,
-	}, nil
+	return s.taskResult(&task)
 
 }
 
@@ -194,30 +211,106 @@ func (s *UploadService) MergeChunks(uploadId string, userId uint) (string, error
 	}
 
 	ext := strings.ToLower(filepath.Ext(filename))
-	// filepath.Base(filename) 取完整路径的最后一部分
-	name := strings.TrimSuffix(filepath.Base(filename), ext) + uuid.NewString() + ext // 先去掉filepath 自带的拓展名字，然后拼接上 uuid + 文件后缀
-	dstPath := filepath.Join(config.GetConfig().BasePath, "uploadFiles", name)        // 拼接最终文件的保存路径，包含最终文件的文件名
-	dst, err := os.Create(dstPath)                                                    // 创建最终的文件，并打开，准备向其中写入文件。
+	staging := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId+".merging")
+	dst, err := os.Create(staging)
 	if err != nil {
 		return "", fmt.Errorf("创建文件失败 %w", err)
 	}
-	defer dst.Close() // 延迟关闭
 
+	sums := make([]string, 0, task.ChunkTotal)
 	for i := 0; i < task.ChunkTotal; i++ {
-		part, err := os.Open(filepath.Join(chunkDir, fmt.Sprintf("%d.part", i))) // 打开某个分片，获取分片内容
+		part, err := os.Open(filepath.Join(chunkDir, fmt.Sprintf("%d.part", i)))
 		if err != nil {
-			os.Remove(dstPath)
+			dst.Close()
+			os.Remove(staging)
 			return "", errors.NewBusinessError(errors.InvalidParameter, "缺少分片")
 		}
-		_, err = io.Copy(dst, part)
-		part.Close() // 读取分片内容完成后，就立马关闭分片。
+		h := sha256.New()
+		_, err = io.Copy(io.MultiWriter(dst, h), part)
+		sums = append(sums, hex.EncodeToString(h.Sum(nil)))
+		part.Close()
 		if err != nil {
-			os.Remove(dstPath)
+			dst.Close()
+			os.Remove(staging)
 			return "", fmt.Errorf("合并分片失败 %w", err)
 		}
 	}
-	os.RemoveAll(chunkDir) // 写入完成后移除所有的临时分片文件
-	return filepath.Join("uploadFiles", name), nil
+
+	if err := dst.Close(); err != nil {
+		os.Remove(staging)
+		return "", fmt.Errorf("关闭文件失败 %w", err)
+	}
+
+	gotSum := sha256.Sum256([]byte(strings.Join(sums, "")))
+	got := hex.EncodeToString(gotSum[:])
+
+	if !strings.EqualFold(got, task.FileHash) {
+		os.Remove(staging)
+		data.GetDB().Model(&model.UploadTask{}).Where("upload_id = ?", uploadId).
+			Update("status", model.UploadStatusFailed)
+		return "", errors.NewBusinessError(errors.InvalidParameter, "文件校验失败")
+	}
+	name := strings.TrimSuffix(filepath.Base(filename), ext) + uuid.NewString() + ext
+	rel := filepath.Join("uploadFiles", name)
+	abs := filepath.Join(config.GetConfig().BasePath, rel)
+	if err := os.MkdirAll(filepath.Dir(abs), 0o755); err != nil {
+		os.Remove(staging)
+		return "", fmt.Errorf("创建目录失败 %w", err)
+	}
+	if err := os.Rename(staging, abs); err != nil {
+		os.Remove(staging)
+		return "", fmt.Errorf("保存文件失败 %w", err)
+	}
+	obj := model.FileObject{
+		Hash:        got,
+		Size:        task.FileSize,
+		Ext:         ext,
+		Mime:        allowedExt[ext],
+		StoragePath: filepath.ToSlash(rel),
+		RefCount:    1,
+	}
+	if err := data.GetDB().Create(&obj).Error; err != nil {
+		var existing model.FileObject
+		if err2 := data.GetDB().Where("hash = ?", got).First(&existing).Error; err2 != nil {
+			return "", fmt.Errorf("保存文件记录失败 %w", err)
+		}
+		os.Remove(abs)
+		data.GetDB().Model(&existing).Update("ref_count", gorm.Expr("ref_count + 1"))
+		obj = existing
+	}
+	if err := data.GetDB().Model(&model.UploadTask{}).Where("upload_id = ?", uploadId).
+		Updates(map[string]any{
+			"status":  model.UploadStatusCompleted,
+			"file_id": obj.ID,
+		}).Error; err != nil {
+		return "", fmt.Errorf("更新任务状态失败 %w", err)
+	}
+	os.RemoveAll(chunkDir)
+	return obj.StoragePath, nil
+	// filepath.Base(filename) 取完整路径的最后一部分
+	//name := strings.TrimSuffix(filepath.Base(filename), ext) + uuid.NewString() + ext // 先去掉filepath 自带的拓展名字，然后拼接上 uuid + 文件后缀
+	//dstPath := filepath.Join(config.GetConfig().BasePath, "uploadFiles", name)        // 拼接最终文件的保存路径，包含最终文件的文件名
+	//dst, err := os.Create(dstPath)                                                    // 创建最终的文件，并打开，准备向其中写入文件。
+	//if err != nil {
+	//	return "", fmt.Errorf("创建文件失败 %w", err)
+	//}
+	//defer dst.Close() // 延迟关闭
+	//
+	//for i := 0; i < task.ChunkTotal; i++ {
+	//	part, err := os.Open(filepath.Join(chunkDir, fmt.Sprintf("%d.part", i))) // 打开某个分片，获取分片内容
+	//	if err != nil {
+	//		os.Remove(dstPath)
+	//		return "", errors.NewBusinessError(errors.InvalidParameter, "缺少分片")
+	//	}
+	//	_, err = io.Copy(dst, part)
+	//	part.Close() // 读取分片内容完成后，就立马关闭分片。
+	//	if err != nil {
+	//		os.Remove(dstPath)
+	//		return "", fmt.Errorf("合并分片失败 %w", err)
+	//	}
+	//}
+	//os.RemoveAll(chunkDir) // 写入完成后移除所有的临时分片文件
+	//return filepath.Join("uploadFiles", name), nil
 }
 
 // LoadTask

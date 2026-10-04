@@ -25,13 +25,14 @@ func (ctl *UploadController) Init(c *gin.Context) {
 	var req struct {
 		FileName string `json:"file_name"`
 		FileSize int64  `json:"file_size"`
+		FileHash string `json:"file_hash"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		ctl.Fail(c, errors.InvalidParameter, "参数错误")
 		return
 	}
-	result, err := ctl.uploadService.Init(ctl.GetCurrentUserID(c), req.FileName, req.FileSize)
+	result, err := ctl.uploadService.Init(ctl.GetCurrentUserID(c), req.FileName, req.FileSize, req.FileHash)
 	if err != nil {
 		ctl.Err(c, err)
 		return

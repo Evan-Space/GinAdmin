@@ -2,12 +2,18 @@ import { useState } from 'react'
 import { xhrRequest } from '@src/request/UploadFile'
 import { POST} from '@src/request'
 import { limitPromise } from '@src/utils/utils.ts'
+import { computeFileHash } from '@src/pages/_layout/UploadFile/-components/customDemo/utils/fileHash.ts'
+
+
+const CHUNK_SIZE = 5 * 1024 * 1024
 
 type InitData = {
     upload_id: string
     chunk_size: number
     chunk_total: number
     uploaded: number[]
+    finished: boolean
+    path: string
 }
 
 
@@ -22,13 +28,22 @@ export const useCustomUploadFile = () => {
         if (!file) return
         setOnProgress(0)
 
+        const { fileHash } = await computeFileHash(file, CHUNK_SIZE, (value) => {
+            setOnProgress(Math.round(value * 100))
+        })
+
 
         // const total = Math.ceil(file.size / CHUNK_SIZE)
         const initRes = await POST<InitData>('/upload/init', {
             file_name: file.name,
             file_size: file.size,
+            file_hash: fileHash,
         })
         if (initRes.code !== 0) return
+        if (initRes.data.finished) { // 秒传
+            setOnProgress(100)
+            return
+        }
 
         const { upload_id: uploadId, chunk_size: chunkSize, chunk_total: total, uploaded } = initRes.data
         const doneSet = new Set(uploaded ?? [])
@@ -45,7 +60,6 @@ export const useCustomUploadFile = () => {
         }
 
         report()
-        // setOnProgress(Math.round(doneSet.size / total) * 100)
 
         
         const taskArray = Array.from({ length: total }, (_, index) => index)
