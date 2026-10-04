@@ -28,10 +28,11 @@ func (ctl *UploadController) Init(c *gin.Context) {
 		FileHash string `json:"file_hash"`
 	}
 
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil { // 校验参数
 		ctl.Fail(c, errors.InvalidParameter, "参数错误")
 		return
 	}
+	// 调用服务层，初始化上传任务
 	result, err := ctl.uploadService.Init(ctl.GetCurrentUserID(c), req.FileName, req.FileSize, req.FileHash)
 	if err != nil {
 		ctl.Err(c, err)

@@ -51,49 +51,50 @@ func NewUploadService() *UploadService {
 	return &UploadService{}
 }
 
+// Init 初始化上传任务
 func (s *UploadService) Init(userId uint, fileName string, fileSize int64, fileHash string) (*InitResult, error) {
-	name := filepath.Base(fileName)
-	ext := strings.ToLower(filepath.Ext(name))
-	if _, ok := allowedExt[ext]; !ok || fileSize <= 0 || len(fileHash) != 64 {
+	name := filepath.Base(fileName)                                            // 获取文件名
+	ext := strings.ToLower(filepath.Ext(name))                                 // 获取文件扩展名
+	if _, ok := allowedExt[ext]; !ok || fileSize <= 0 || len(fileHash) != 64 { // 校验参数，看上传的文件是否支持
 		return nil, errors.NewBusinessError(errors.InvalidParameter, "参数错误")
 	}
 
-	var object model.FileObject
-	err1 := data.GetDB().Where("hash = ?", fileHash).First(&object).Error
-	if err1 == nil {
-		if err := data.GetDB().Model(&model.FileObject{}).Where("id = ?", object.ID).Update("ref_count", gorm.Expr("ref_count + 1")).Error; err != nil {
+	var object model.FileObject                                           // 声明变量，用来查询数据库中是否已经存在该文件
+	err1 := data.GetDB().Where("hash = ?", fileHash).First(&object).Error // 查询 FileObject 表中是否存在 hash值为 fileHash 的数据
+	if err1 == nil {                                                      // 如果查到数据，说明此文件之前已经被上传过，则更新该文件的引用计数
+		if err := data.GetDB().Model(&model.FileObject{}).Where("id = ?", object.ID).Update("ref_count", gorm.Expr("ref_count + 1")).Error; err != nil { // 更新该文件的引用计数
 			return nil, fmt.Errorf("更新引用计数失败 %w", err)
 		}
-		return &InitResult{
+		return &InitResult{ // 返回结果，返回文件的存储路径
 			Finished: true,
 			Path:     object.StoragePath,
 			Uploaded: []int{},
 		}, nil
 	}
 
-	if !stdErrors.Is(err1, gorm.ErrRecordNotFound) {
+	if !stdErrors.Is(err1, gorm.ErrRecordNotFound) { // 如果不是因为记录不存在这个错误，说明程序出错了，返回错误信息。
 		return nil, fmt.Errorf("查询文件失败 %w", err1)
 	}
 
-	var task model.UploadTask
+	var task model.UploadTask // 声明变量，用来查询数据库中是否存在该文件的上传任务
 	err := data.GetDB().Where(
 		"user_id = ? AND file_hash = ? AND file_size = ? AND status = ? AND expired_at > ?",
-		userId, name, fileHash, model.UploadStatusUploading, time.Now()).First(&task).Error
-	if err == nil {
+		userId, name, fileHash, model.UploadStatusUploading, time.Now()).First(&task).Error // 查询数据库中是否存在符合这些参数条件的任务，并且把查到的结果写入声明的 task 变量里面
+	if err == nil { // 如果查到数据，说明该文件的上传任务已经存在，则返回上传任务的结果
 		return s.taskResult(&task)
 	}
-	if !stdErrors.Is(err, gorm.ErrRecordNotFound) {
+	if !stdErrors.Is(err, gorm.ErrRecordNotFound) { // 如果不是因为记录不存在这个错误，说明程序出错了，返回错误信息。
 		return nil, fmt.Errorf("查询上传任务失败 %w", err)
 	}
+	// 如果查不到数据，说明该文件的上传任务不存在，则按照新文件上传逻辑执行。
+	chunkTotal := int((fileSize + ChunkSize - 1) / ChunkSize) // 计算文件被分片的总数
+	uploadId := uuid.NewString()                              // 生成一个唯一的上传 ID
 
-	chunkTotal := int((fileSize + ChunkSize - 1) / ChunkSize)
-	uploadId := uuid.NewString()
-
-	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId)
-	if err := os.MkdirAll(dir, 0o755); err != nil { // 创建目标文件夹，用来存放上传文件的位置
+	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId) // 拼接服务端最终保存文件的路径
+	if err := os.MkdirAll(dir, 0o755); err != nil {                                   // 创建目标文件夹，用来存放上传文件的位置
 		return nil, fmt.Errorf("创建文件夹失败 %w", err)
 	}
-	task = model.UploadTask{
+	task = model.UploadTask{ // 创建一个变量，用来存储上传文件的信息
 		UploadId:   uploadId,
 		UserId:     userId,
 		FileName:   filepath.Base(fileName),
@@ -104,12 +105,12 @@ func (s *UploadService) Init(userId uint, fileName string, fileSize int64, fileH
 		Status:     model.UploadStatusUploading,
 		ExpiredAt:  time.Now().Add(uploadTaskTTL),
 	}
-	if err := data.GetDB().Create(&task).Error; err != nil {
-		os.RemoveAll(dir)
+	if err := data.GetDB().Create(&task).Error; err != nil { // 创建一个 sql， 将上传文件的信息写入数据库
+		os.RemoveAll(dir) // 如果创建失败，则删除目标文件夹
 		return nil, fmt.Errorf("创建上传任务失败 %w", err)
 	}
 
-	return s.taskResult(&task)
+	return s.taskResult(&task) // 返回上传任务的结果
 
 }
 
@@ -331,8 +332,14 @@ func (s *UploadService) LoadTask(uploadId string, userId uint) (*model.UploadTas
 	return &task, nil
 }
 
+// taskResult
+/*
+taskResult 会扫描磁盘目录 uploadFiles/tmp{uploadId} 目录下，已经上传的分片序号
+组装成 InitResult 结构体，返回给前端。
+
+*/
 func (s *UploadService) taskResult(task *model.UploadTask) (*InitResult, error) {
-	uploaded, err := uploadedIndexes(task.UploadId)
+	uploaded, err := uploadedIndexes(task.UploadId) // 查询已经上传的分片序号
 	if err != nil {
 		return nil, err
 	}
@@ -342,13 +349,13 @@ func (s *UploadService) taskResult(task *model.UploadTask) (*InitResult, error) 
 		ChunkTotal: task.ChunkTotal,
 		Uploaded:   uploaded,
 		Finished:   task.Status == model.UploadStatusCompleted,
-		//Finished:   false,
 	}, nil
 }
 
 // uploadedIndexes
 /*
 查已上传的分片序号
+忽略 .part.tmp 的文件，因为这些文件是写了一半， 不算一个完整的切片，不算在内。
 */
 func uploadedIndexes(uploadId string) ([]int, error) {
 	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId)
