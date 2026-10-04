@@ -15,23 +15,23 @@ export const computeFileHash = (
     return new Promise((resolve, reject) => {
         const worker = new Worker(new URL('./hashWorker.ts', import.meta.url), { type: 'module' })
 
-        worker.onmessage = (event: MessageEvent) => {
-            const data = event.data
+        worker.onmessage = (event: MessageEvent) => { // 监听 worker 的返回消息
+            const data = event.data // 获取 worker 返回的消息
             if (data.type === 'progress') {
-                onProgress?.(data.value)
+                onProgress?.(data.value) // 更新分割进度
                 return
             }
-            worker.terminate()
+            worker.terminate() // 终止 worker
             resolve({
-                fileHash: data.fileHash,
-                chunkHash: data.chunkHash,
+                fileHash: data.fileHash, // 文件的 SHA-256 的十六进制字符串
+                chunkHash: data.chunkHash, // 所有的分片的 hash
             })
         }
-        worker.onerror = (event: ErrorEvent) => {
+        worker.onerror = (event: ErrorEvent) => { // 错误处理
             worker.terminate()
             reject(new Error(event.message || '文件哈希值计算失败'))
         }
-        worker.postMessage({
+        worker.postMessage({ // 发送消息，告诉 worker，要分割的文件和 分割大小
             file,
             chunkSize,
         })
