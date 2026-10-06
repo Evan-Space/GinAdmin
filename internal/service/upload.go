@@ -291,7 +291,6 @@ func (s *UploadService) LoadTask(uploadId string, userId uint) (*model.UploadTas
 /*
 taskResult 会扫描磁盘目录 uploadFiles/tmp{uploadId} 目录下，已经上传的分片序号
 组装成 InitResult 结构体，返回给前端。
-
 */
 func (s *UploadService) taskResult(task *model.UploadTask) (*InitResult, error) {
 	uploaded, err := uploadedIndexes(task.UploadId) // 查询已经上传的分片序号

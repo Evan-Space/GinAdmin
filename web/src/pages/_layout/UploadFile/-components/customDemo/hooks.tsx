@@ -43,10 +43,8 @@ export const useCustomUploadFile = () => {
         const file = fileRef.current
         if (!file) return
         const sum = loadedRef.current.reduce((a, b) => a + b, 0)
-        setOnProgress(Math.min(99,
-            Math.round((sum / file.size) * 100)
-            )
-        )
+        const uploadPercent = Math.round((sum / file.size) * 94) // 上传阶段占总进度的 94%，hash 阶段占 5% ,留 1% 最后设置。
+        setOnProgress(Math.min(99, uploadPercent + 5))
     }
 
     /**
@@ -96,6 +94,9 @@ export const useCustomUploadFile = () => {
             const taskArray = pending.map((index) => {
                 // 构造需要上传的分片 Promise 数组
                 return () => {
+                    if (pausedRef.current || signal.aborted) {
+                        return Promise.reject(new Error('请求已取消'))
+                    }
                     const startIndex = index * chunkSize // 计算某个分片的开始字节位置
                     const blob = file.slice(startIndex, startIndex + chunkSize) // 从整个文件字节中，截取当前分片需要上传的 blob 字节
                     const queryParams = new URLSearchParams({
@@ -173,7 +174,7 @@ export const useCustomUploadFile = () => {
          * 每个分片哈希 安顺序拼接后，再哈希一次，算法需要和后端一致
          */
         const { fileHash } = await computeFileHash(file, CHUNK_SIZE, (value) => {
-            setOnProgress(Math.round(value * 100))
+            setOnProgress(Math.round(value * 5)) // 计算 hash 时，只占整个进度的 %5
         })
 
         /**
