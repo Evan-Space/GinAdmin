@@ -1,7 +1,7 @@
 import { useCustomUploadFile } from './hooks.tsx'
-import { Progress } from 'antd'
+import { Progress, Button } from 'antd'
 export const CustomUploadFile = () => {
-    const { handleFileChange, onProgress } = useCustomUploadFile()
+    const { status, handleFileChange, onProgress, handlePause, handleResume } = useCustomUploadFile()
     return (
         <div className="my-10 min-h-25 border border-solid border-#000">
             <input
@@ -13,6 +13,19 @@ export const CustomUploadFile = () => {
             <div className={'w-[80%] mx-auto'}>
                 <Progress percent={onProgress} />
             </div>
+
+            {status === 'uploading' && (
+                <Button type="primary" onClick={handlePause}>
+                    暂停
+                </Button>
+            )}
+            {status === 'paused' && (
+                <Button type="primary" onClick={handleResume}>
+                    继续
+                </Button>
+            )}
+
+            {status}
         </div>
     )
 }

@@ -79,7 +79,7 @@ func (s *UploadService) Init(userId uint, fileName string, fileSize int64, fileH
 	var task model.UploadTask // 声明变量，用来查询数据库中是否存在该文件的上传任务
 	err := data.GetDB().Where(
 		"user_id = ? AND file_hash = ? AND file_size = ? AND status = ? AND expired_at > ?",
-		userId, name, fileHash, model.UploadStatusUploading, time.Now()).First(&task).Error // 查询数据库中是否存在符合这些参数条件的任务，并且把查到的结果写入声明的 task 变量里面
+		userId, fileHash, fileSize, model.UploadStatusUploading, time.Now()).First(&task).Error // 查询数据库中是否存在符合这些参数条件的任务，并且把查到的结果写入声明的 task 变量里面
 	if err == nil { // 如果查到数据，说明该文件的上传任务已经存在，则返回上传任务的结果
 		return s.taskResult(&task)
 	}

@@ -76,3 +76,10 @@ export const limitPromise = <T>(taskArr: Array<() => Promise<T>>, limit: number)
         runNext()
     })
 }
+
+
+/**
+ * 
+ * promise 模拟休眠，用于模拟网络延迟
+*/
+export const sleep = (time: number) => new Promise((resolve) => setTimeout(resolve, time * 1000))
