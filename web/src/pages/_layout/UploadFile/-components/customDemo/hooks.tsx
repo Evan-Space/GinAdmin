@@ -244,6 +244,7 @@ export const useCustomUploadFile = () => {
             upload_id: uploadIdRef.current
         })
         if (res.code !== 0) {
+            setStatus('error')
             return
         }
         console.log("取消任务成功")
