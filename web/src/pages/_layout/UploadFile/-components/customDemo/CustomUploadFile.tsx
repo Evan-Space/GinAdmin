@@ -1,7 +1,8 @@
 import { useCustomUploadFile } from './hooks.tsx'
 import { Progress, Button } from 'antd'
 export const CustomUploadFile = () => {
-    const { status, handleFileChange, onProgress, handlePause, handleResume } = useCustomUploadFile()
+    const { status, handleFileChange, onProgress, handlePause, handleResume, handleAbortUpload } =
+        useCustomUploadFile()
     return (
         <div className="my-10 min-h-25 border border-solid border-#000">
             <input
@@ -24,6 +25,8 @@ export const CustomUploadFile = () => {
                     继续
                 </Button>
             )}
+
+            {['uploading', 'paused'].includes(status) && <Button onClick={handleAbortUpload}>取消上传</Button>}
 
             {status}
         </div>

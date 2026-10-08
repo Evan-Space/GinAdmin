@@ -97,3 +97,20 @@ func (ctl *UploadController) Status(c *gin.Context) {
 	}
 	ctl.Success(c, result)
 }
+
+func (ctl *UploadController) UploadAbort(c *gin.Context) {
+	var req struct {
+		UploadId string `json:"upload_id"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || req.UploadId == "" {
+		ctl.Fail(c, errors.InvalidParameter, "参数错误")
+		return
+	}
+
+	if err := ctl.uploadService.UploadAbort(req.UploadId, ctl.GetCurrentUserID(c)); err != nil {
+		ctl.Err(c, err)
+		return
+	}
+
+	ctl.Success(c, nil)
+}

@@ -233,11 +233,35 @@ export const useCustomUploadFile = () => {
         await runUpload(statusRes.data.uploaded ?? [])
     }
 
+
+    /**
+     * 取消上传
+     * */
+    const handleAbortUpload = async () => {
+        pausedRef.current = true
+        abortRef.current?.abort()
+        const res = await POST("/upload/abort", {
+            upload_id: uploadIdRef.current
+        })
+        if (res.code !== 0) {
+            return
+        }
+        console.log("取消任务成功")
+        uploadIdRef.current = ""
+        fileRef.current = null
+        pausedRef.current = false
+        loadedRef.current = []
+        setStatus("idle")
+        setOnProgress(0)
+
+    }
+
     return {
         handleFileChange,
         onProgress,
         handlePause,
         handleResume,
         status,
+        handleAbortUpload,
     }
 }

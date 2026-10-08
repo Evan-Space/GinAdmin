@@ -6,6 +6,7 @@ const (
 	UploadStatusUploading uint8 = 1
 	UploadStatusFailed    uint8 = 2
 	UploadStatusCompleted uint8 = 3
+	UploadStatusAborted   uint8 = 4 // 用户已取消
 )
 
 type UploadTask struct {

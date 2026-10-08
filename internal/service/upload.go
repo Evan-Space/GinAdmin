@@ -376,3 +376,30 @@ func checkUploadType(filename string, head []byte) error {
 	return nil
 
 }
+
+// UploadAbort 用户取消上传任务
+func (s *UploadService) UploadAbort(uploadId string, userId uint) error {
+	if _, err := uuid.Parse(uploadId); err != nil {
+		return errors.NewBusinessError(errors.InvalidParameter, "参数错误")
+	}
+	var task model.UploadTask
+	if err := data.GetDB().Where("upload_id = ?", uploadId).First(&task).Error; err != nil {
+		return errors.NewBusinessError(errors.InvalidParameter, "上传任务不存在")
+	}
+	if task.UserId != userId {
+		return errors.NewBusinessError(errors.InvalidParameter, "权限不足")
+	}
+	if task.Status == model.UploadStatusCompleted {
+		return errors.NewBusinessError(errors.InvalidParameter, "任务已完成，无需取消")
+	}
+	base := config.GetConfig().BasePath
+	_ = os.RemoveAll(filepath.Join(base, "uploadFiles", "tmp", uploadId))
+	_ = os.RemoveAll(filepath.Join(base, "uploadFiles", "tmp", uploadId+".merging"))
+
+	if task.Status != model.UploadStatusAborted {
+		if err := data.GetDB().Model(&model.UploadTask{}).Where("Upload_id = ?", uploadId).Update("status", model.UploadStatusAborted).Error; err != nil {
+			return fmt.Errorf("更新任务状态失败 %w", err)
+		}
+	}
+	return nil
+}

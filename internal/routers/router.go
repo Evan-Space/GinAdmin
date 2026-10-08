@@ -87,6 +87,7 @@ func AdminRouteTree() RouteGroupDef {
 					//POST("uploadFile", "上传文件", AuthLogin, uploadCtrl.UploadFile),
 					POST("chunk", "上传分片", AuthLogin, uploadCtrl.Chunk),
 					POST("complete", "合并文件分片", AuthLogin, uploadCtrl.Complete),
+					POST("abort", "取消上传任务", AuthLogin, uploadCtrl.UploadAbort),
 				},
 			},
 
