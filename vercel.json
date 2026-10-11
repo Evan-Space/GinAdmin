@@ -1,11 +1,22 @@
 {
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "services": {
+        "app": {
+            "root": ".",
+            "runtime": "go"
+        },
+        "web": {
+            "root": "web",
+            "framework": "vite"
+        }
+    },
     "buildCommand": "cd web && pnpm install && pnpm build",
     "outputDirectory": "web/dist",
     "functions": {
-      "api/index.go": { "maxDuration": 60 }
+        "api/index.go": { "maxDuration": 60 }
     },
     "rewrites": [
-      { "source": "/api/(.*)", "destination": "/api/index" },
-      { "source": "/(.*)", "destination": "/index.html" }
+        { "source": "/api/(.*)", "destination": "/api/index" },
+        { "source": "/(.*)", "destination": "/index.html" }
     ]
-  }
+}
