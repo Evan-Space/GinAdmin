@@ -1,7 +1,6 @@
-import { fetchResponse, getToken, redirectToLogin } from '@src/request/request.ts'
+import { fetchResponse, getToken, redirectToLogin, BASE_URL } from '@src/request/request.ts'
 import { sleep } from '@src/utils/utils.ts'
 
-const BASE_URL = 'http://localhost:8080/api/v1'
 export interface XHRRequestOptions {
     url: string
     method: 'POST' | 'GET' | 'PUT' | 'DELETE'
@@ -19,7 +18,7 @@ export class XHRRetryableError extends Error {} // 需要重试的错误类型
 /**
  * 正式的 XMLHTTPRequest 封装
  *
- * XMLHTTP 可以通过 onPregressCallback 拿到上传进度
+ * XMLHTTP 可以通过 onProgressCallback 拿到上传进度
  * */
 export function xhrRequest<T>(options: XHRRequestOptions): Promise<fetchResponse<T>> {
     const { url, method = 'POST', body = null, headers = {}, onProgress, signal } = options

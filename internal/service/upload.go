@@ -90,8 +90,8 @@ func (s *UploadService) Init(userId uint, fileName string, fileSize int64, fileH
 	chunkTotal := int((fileSize + ChunkSize - 1) / ChunkSize) // 计算文件被分片的总数
 	uploadId := uuid.NewString()                              // 生成一个唯一的上传 ID
 
-	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId) // 拼接服务端最终保存文件的路径
-	if err := os.MkdirAll(dir, 0o755); err != nil {                                   // 创建目标文件夹，用来存放上传文件的位置
+	dir := filepath.Join(storageBase(), "uploadFiles", "tmp", uploadId) // 拼接服务端最终保存文件的路径
+	if err := os.MkdirAll(dir, 0o755); err != nil {                     // 创建目标文件夹，用来存放上传文件的位置
 		return nil, fmt.Errorf("创建文件夹失败 %w", err)
 	}
 	task = model.UploadTask{ // 创建一个变量，用来存储上传文件的信息
@@ -118,8 +118,8 @@ func (s *UploadService) SaveChunk(uploadId string, index int, src io.Reader) err
 	if _, err := uuid.Parse(uploadId); err != nil || index < 0 { // 校验请求参数
 		return errors.NewBusinessError(errors.InvalidParameter, "参数错误")
 	}
-	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId) // 拼接分片保存位置目录
-	if err := os.MkdirAll(dir, 0o755); err != nil {                                   // 创建分片保存位置目录
+	dir := filepath.Join(storageBase(), "uploadFiles", "tmp", uploadId) // 拼接分片保存位置目录
+	if err := os.MkdirAll(dir, 0o755); err != nil {                     // 创建分片保存位置目录
 		return fmt.Errorf("创建目录失败 %w", err)
 	}
 
@@ -156,7 +156,7 @@ func (s *UploadService) MergeChunks(uploadId string, userId uint) (string, error
 		return "", err
 	}
 
-	chunkDir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId) // 拼接保存分片的文件夹路径
+	chunkDir := filepath.Join(storageBase(), "uploadFiles", "tmp", uploadId) // 拼接保存分片的文件夹路径
 
 	for i := 0; i < task.ChunkTotal; i++ { // 遍历分片，查看分片是否存在
 		// os.Stat 用来获取目录的元信息，如果文件不存在，则返回错误。常用来判断某个目录/文件是否存在。
@@ -180,9 +180,9 @@ func (s *UploadService) MergeChunks(uploadId string, userId uint) (string, error
 		return "", err
 	}
 
-	ext := strings.ToLower(filepath.Ext(filename))                                                   // 获取文件扩展名
-	staging := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId+".merging") // 拼接合并分片的临时文件路径
-	dst, err := os.Create(staging)                                                                   // 创建合并分片的临时文件（最终文件的临时文件），并打开，准备向其中写入文件。
+	ext := strings.ToLower(filepath.Ext(filename))                                     // 获取文件扩展名
+	staging := filepath.Join(storageBase(), "uploadFiles", "tmp", uploadId+".merging") // 拼接合并分片的临时文件路径
+	dst, err := os.Create(staging)                                                     // 创建合并分片的临时文件（最终文件的临时文件），并打开，准备向其中写入文件。
 	if err != nil {
 		return "", fmt.Errorf("创建文件失败 %w", err)
 	}
@@ -224,7 +224,7 @@ func (s *UploadService) MergeChunks(uploadId string, userId uint) (string, error
 	// 如果一样，则继续执行，创建最终文件
 	name := strings.TrimSuffix(filepath.Base(filename), ext) + uuid.NewString() + ext // 拼接最终文件的文件名
 	rel := filepath.Join("uploadFiles", name)
-	abs := filepath.Join(config.GetConfig().BasePath, rel)
+	abs := filepath.Join(storageBase(), rel)
 	if err := os.MkdirAll(filepath.Dir(abs), 0o755); err != nil { // 创建最终文件的保存目录
 		os.Remove(staging)
 		return "", fmt.Errorf("创建目录失败 %w", err)
@@ -312,7 +312,7 @@ func (s *UploadService) taskResult(task *model.UploadTask) (*InitResult, error) 
 忽略 .part.tmp 的文件，因为这些文件是写了一半， 不算一个完整的切片，不算在内。
 */
 func uploadedIndexes(uploadId string) ([]int, error) {
-	dir := filepath.Join(config.GetConfig().BasePath, "uploadFiles", "tmp", uploadId)
+	dir := filepath.Join(storageBase(), "uploadFiles", "tmp", uploadId)
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -392,7 +392,7 @@ func (s *UploadService) UploadAbort(uploadId string, userId uint) error {
 	if task.Status == model.UploadStatusCompleted {
 		return errors.NewBusinessError(errors.InvalidParameter, "任务已完成，无需取消")
 	}
-	base := config.GetConfig().BasePath
+	base := storageBase()
 	_ = os.RemoveAll(filepath.Join(base, "uploadFiles", "tmp", uploadId))
 	_ = os.RemoveAll(filepath.Join(base, "uploadFiles", "tmp", uploadId+".merging"))
 
@@ -402,4 +402,12 @@ func (s *UploadService) UploadAbort(uploadId string, userId uint) error {
 		}
 	}
 	return nil
+}
+
+// storageBase 上传文件根目录；Vercel 上只有临时目录可写
+func storageBase() string {
+	if os.Getenv("VERCEL") != "" {
+		return os.TempDir()
+	}
+	return config.GetConfig().BasePath
 }
