@@ -7,7 +7,7 @@
     "functions": {
         "api/index.go": {
             "maxDuration": 60,
-            "includeFiles": "config/config.yaml"
+            "includeFiles": "{config/config.yaml,rbac_model.conf}"
         }
     },
     "rewrites": [
