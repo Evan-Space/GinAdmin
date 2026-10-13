@@ -1,0 +1,16 @@
+{
+  "name": "GinAdmin",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:web": "pnpm --filter gin-admin-web dev",
+    "build:web": "pnpm --filter gin-admin-web build",
+    "dev:server": "go run . server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@9.14.4"
+}

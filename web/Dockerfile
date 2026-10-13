@@ -4,10 +4,16 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 # 阶段一
 # 启用 pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable 
+# && corepack prepare pnpm@latest --activate
 
 # 先复制依赖文件，尽量利用 docker 缓存
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY web/package.json web/
+RUN pnpm install --frozen-lockfile --filter gin-admin-web...
+
+COPY web/ web/
+RUN pnpm --filter gin-admin-web build
 
 RUN pnpm install --frozen-lockfile
 
@@ -19,7 +25,7 @@ RUN pnpm build
 # 运行
 FROM nginx:1.27-alpine
 # 把构建产物放在 nginx 的默认目录下
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/web/dist /usr/share/nginx/html
 
 # 写入 nginx 配置
 RUN printf 'server {\n\

@@ -39,3 +39,6 @@ docs/
 !web/docs/
 !web/docs/ai/
 !web/docs/ai/**
+
+node_modules/
+.vercel/
