@@ -7,7 +7,8 @@
   "scripts": {
     "dev:web": "pnpm --filter gin-admin-web dev",
     "build:web": "pnpm --filter gin-admin-web build",
-    "dev:server": "go run . server"
+    "dev:server": "go -C apps/server run . server",
+    "build:server": "go -C apps/server build -o bin/gin-admin ."
   },
   "keywords": [],
   "author": "",

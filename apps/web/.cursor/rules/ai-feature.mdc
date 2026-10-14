@@ -1,0 +1,56 @@
+---
+description: 新增前端 AI 功能、assistant panel、mock AI client 和 AI 安全 UX 的规则。
+globs: src/features/ai/**/*.{ts,tsx},src/pages/**/*ai*.{ts,tsx},src/**/*Ai*.{ts,tsx}
+alwaysApply: false
+---
+
+# AI 功能规则
+
+创建或编辑前端 AI 功能时使用本规则。
+
+## 范围
+
+本项目的前端 AI 功能只负责用户体验和流程编排。浏览器不负责模型服务商凭证、模型选择、计费或特权数据访问。
+
+## 推荐的前端 AI 功能结构
+
+```text
+src/features/ai/
+  components/
+  hooks/
+  services/
+  types.ts
+  constants.ts
+```
+
+## 必需的 UX 状态
+
+- idle
+- composing
+- streaming
+- success
+- error
+- canceled
+
+## 安全规则
+
+- 不要把模型 API Key 放进 `.env`、源码、local storage 或前端配置。
+- 除非用户明确确认操作，否则 AI 输出都应视为建议。
+- 将前端上下文放入 AI 请求前，先脱敏明显敏感字段。
+- 没有独立确认步骤时，AI UI 绝不能直接删除、授权、导出或修改数据。
+- 展示足够上下文，让用户理解 AI 使用了哪些数据。
+
+## 先 Mock
+
+- 如果后端 AI 接口尚不存在，先基于 mock service 实现。
+- mock client 应遵循与真实 service 相同的接口。
+- 后续接入后端时，应只替换 service 层，而不是重写 UI。
+
+## 适合优先实现的 AI 功能
+
+- 后台 AI assistant drawer。
+- 自然语言表格筛选建议。
+- 请求日志解释。
+- 错误日志总结。
+- 权限草案解释。
+- 表单字段建议。

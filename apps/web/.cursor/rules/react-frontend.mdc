@@ -1,0 +1,53 @@
+---
+description: web/src 下 React、TypeScript、状态、hook 和组件的开发规则。
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# React 前端规则
+
+编辑 React、TypeScript、hooks、stores 或页面组件时使用本规则。
+
+## 组件风格
+
+- 使用函数组件。
+- 页面路由文件只负责路由组合和页面级编排。
+- 页面变复杂后，将可复用 UI 提取到 `components` 目录。
+- 将数据请求和副作用提取到 hook 中，例如 `useUserList`。
+- 后台 UI 基础组件优先使用 Ant Design。
+- Tailwind 只用于简单布局工具类和少量间距调整。
+
+## TypeScript
+
+- 遵守 `strict`、`noUnusedLocals` 和 `noUnusedParameters`。
+- 请求和响应类型应定义在所属 feature 或 API 模块附近。
+- 普通对象结构优先使用 `type`，只有需要扩展时再使用 `interface`。
+- 避免宽泛的 `any`；优先使用 `unknown`、判别联合或明确的 DTO 类型。
+
+## Hooks
+
+- 可复用 feature hook 放在所属 feature 或 route 附近。
+- 符合现有模式时，使用 ahooks 的 `useRequest` 管理请求生命周期。
+- hook 返回具名值，不要把原始实现细节泄漏给组件。
+- 暴露 loading 和 error 状态，方便 UI 做明确反馈。
+
+## Zustand
+
+- store 保持小而聚焦，按领域拆分。
+- 除非有明确理由，不要把服务端缓存放进 Zustand。
+- store action 要有类型，并按用户意图命名，例如 `setCollapsed`。
+
+## 新功能文件组织
+
+较大的新功能优先使用：
+
+```text
+web/src/features/<feature-name>/
+  components/
+  hooks/
+  services/
+  types.ts
+  constants.ts
+```
+
+小型路由专属辅助代码可以沿用现有约定，放在路由文件旁边，例如 `-hooks.tsx`、`-types.ts` 和 `-constant.tsx`。
