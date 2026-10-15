@@ -35,9 +35,12 @@ uploadFiles/
 
 
 .DS_Store
-!web/docs/
-!web/docs/ai/
-!web/docs/ai/**
+
+
+apps/server/bin/
+apps/server/GinAdmin
+
+
 
 node_modules/
 .vercel/

@@ -1,0 +1,40 @@
+---
+description: web/src/pages 下 TanStack Router 文件式路由规则。
+globs: src/pages/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# 路由规则
+
+在 `web/src/pages` 下新增或编辑路由时使用本规则。
+
+## 核心规则
+
+- 使用 TanStack Router 文件式路由。
+- 使用 `createFileRoute` 定义路由。
+- 不要手动编辑 `web/src/routeTree.gen.ts`。
+- 路由路径必须符合文件式路由约定。
+- 路由文件保持轻量可读；复杂 UI 和业务逻辑应移动到 components 或 hooks。
+
+## 当前路由结构
+
+- `src/pages/__root.tsx` 使用 Ant Design `ConfigProvider` 和 `App` 包裹应用。
+- `src/pages/_layout.tsx` 挂载后台共享布局。
+- 登录路由：`src/pages/login/index.tsx`
+- 后台管理路由位于 `src/pages/_layout` 下。
+
+## 新增页面
+
+在登录后的后台布局下新增页面时：
+
+1. 在 `src/pages/_layout` 下新增路由文件。
+2. 导出 `Route = createFileRoute(...)`。
+3. 如果页面需要在侧边栏可访问，在 `src/layout/constants.tsx` 添加菜单项。
+4. 页面级 loading、empty 和 error 状态要可见。
+5. 修改后运行或建议运行路由生成/构建命令。
+
+## 导航
+
+- React 内部导航使用 TanStack Router API。
+- Ant Design `Menu` 的 key 要和路由路径保持一致。
+- 路由名称要贴合后台业务领域，避免实现细节命名。

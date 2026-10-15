@@ -1,9 +1,0 @@
-/node_modules
-/dist
-/build
-/public
-/test
-/tools
-/vendor
-/src/routeTree.gen.ts
-.tanstack/
