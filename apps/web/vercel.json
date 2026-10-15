@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://<后端域名>.vercel.app/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://gin-admin-server-awu0c9hjd-evanprojects.vercel.app/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
